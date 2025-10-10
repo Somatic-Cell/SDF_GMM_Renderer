@@ -19,7 +19,7 @@ public:
     MeshLoader();
     ~MeshLoader();
 
-    bool load(const std::string &fbxFile, Model *model);
+    bool load(const std::string &fbxFile, Model *model, const sceneIO::Object objectDesc);
 
 private:
     void parseMesh(TriangleMesh & dstMesh, const aiMesh* pSrcMesh, const std::vector<Material*> materials);
@@ -32,7 +32,7 @@ MeshLoader::MeshLoader()
 MeshLoader::~MeshLoader()
 {}
 
-bool MeshLoader::load(const std::string &fileName, Model* model)
+bool MeshLoader::load(const std::string &fileName, Model* model, const sceneIO::Object objectDesc)
 {
     if(fileName.empty()){
         std::cerr << "ERROR: filename is empty." << std::endl;
@@ -132,13 +132,25 @@ bool MeshLoader::load(const std::string &fileName, Model* model)
     std::cout << rootT.b1 << ", " << rootT.b2 << ", " << rootT.b3 << "\n";
     std::cout << rootT.c1 << ", " << rootT.c2 << ", " << rootT.c3 << "\n";
 
-    float3 center = model->bounds.getCenter();
+    float3 bBoxCenter   = model->bounds.getCenter();
+    float3 bBoxMin      = model->bounds.getMin();
+    float3 bBoxSpan     = model->bounds.getSpan();
     std::cout << "Bounding box center:" << std::endl;
-    std::cout << center.x << ", " << center.y << ", " << center.z << "\n";
+    std::cout << bBoxCenter.x << ", " << bBoxCenter.y << ", " << bBoxCenter.z << "\n";
 
-    model->modelMatrix.row0 = make_float4(rootT.a1, rootT.a2, rootT.a3, rootT.a4);
-    model->modelMatrix.row1 = make_float4(rootT.b1, rootT.b2, rootT.b3, rootT.a4);
-    model->modelMatrix.row2 = make_float4(rootT.c1, rootT.c2, rootT.c3, rootT.a4);
+    
+    const float3 t = make_float3(objectDesc.TRS.transform[0], objectDesc.TRS.transform[1], objectDesc.TRS.transform[2]);
+    const float4 q = make_float4(objectDesc.TRS.rotation[0],  objectDesc.TRS.rotation[1],  objectDesc.TRS.rotation[2], objectDesc.TRS.rotation[3]);
+    const float3 s = make_float3(objectDesc.TRS.scale[0],     objectDesc.TRS.scale[1],     objectDesc.TRS.scale[2]    );
+    model->modelMatrix = mymath::makeInstanceMatrix(
+        t,
+        q,
+        s,
+        bBoxCenter,
+        bBoxMin,
+        objectDesc.placeCenterBBoxAtOrigin,
+        objectDesc.placeOnGround
+    );
 
     pScene = nullptr;
 
@@ -465,7 +477,7 @@ void MeshLoader::parseMaterial(Material& dstMaterial, const aiMaterial* pSrcMate
 
 }                    
 
-Model *loadModel(const std::string &modelFileName){
+Model *loadModel(const sceneIO::Object objectDesc){
     Model *model = new Model;
     MeshLoader loader;
 
@@ -483,11 +495,11 @@ Model *loadModel(const std::string &modelFileName){
     }
 #endif
 
-    std::filesystem::path fbxDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model" / modelFileName;
+    std::filesystem::path fbxDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model" / objectDesc.file;
     std::cout << "Model Path:" << fbxDir << std::endl;
 
     std::string err = "";
-    bool readOk = loader.load(fbxDir.string(), model);
+    bool readOk = loader.load(fbxDir.string(), model, objectDesc);
 
     if(!readOk) {
         throw std::runtime_error("Could not read model from " + fbxDir.string() + " : " + err);

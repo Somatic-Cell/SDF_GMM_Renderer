@@ -36,6 +36,9 @@ namespace sceneIO {
         std::string type = "mesh";
         std::string file = "CornellBox\\CornellBox-Original.obj";
         Transform TRS{};
+        bool placeCenterBBoxAtOrigin = true;
+        bool placeOnGround = true;
+        bool normalizeScale = true;
     };
 
     struct Integrator {
@@ -43,6 +46,7 @@ namespace sceneIO {
         bool        applySpectralRendering = false;
         int         spp  = 1;
         int         maxBounce = 8;
+        bool        isAccumulate  = true;
     };
 
     struct Outputs {
@@ -102,6 +106,8 @@ namespace sceneIO {
         v.type      = j.value("type", v.type);
         v.file      = j.value("file", v.file);
         v.TRS       = j.value("TRS", v.TRS);
+        v.placeCenterBBoxAtOrigin   = j.value("placeCenterBBoxAtOrigin", v.placeCenterBBoxAtOrigin);
+        v.placeOnGround             = j.value("placeOnGround", v.placeOnGround);
     }
 
     inline void to_json(nlohmann::ordered_json& j, const Object& v){
@@ -109,7 +115,9 @@ namespace sceneIO {
             {"name",        v.name},
             {"type",        v.type},
             {"file",        v.file},
-            {"TRS",         v.TRS}
+            {"TRS",         v.TRS},
+            {"placeCenterBBoxAtOrigin", v.placeCenterBBoxAtOrigin},
+            {"placeOnGround",           v.placeOnGround}
         };
     }
 
@@ -118,7 +126,8 @@ namespace sceneIO {
         v.type                      = j.value("type", v.type);
         v.applySpectralRendering    = j.value("applySpectralRendering", v.applySpectralRendering);
         v.spp                       = j.value("spp", v.spp);
-        v.type                      = j.value("type", v.type);
+        v.maxBounce                 = j.value("maxBounce", v.maxBounce);
+        v.isAccumulate              = j.value("isAccumulate", v.isAccumulate);
     }
 
     inline void to_json(nlohmann::ordered_json& j, const Integrator& v){
@@ -126,7 +135,8 @@ namespace sceneIO {
             {"type", v.type},
             {"applySpectralRendering", v.applySpectralRendering},
             {"spp", v.spp},
-            {"type", v.type}
+            {"maxBounce", v.maxBounce},
+            {"isAccumulate", v.isAccumulate}
         };
     }
 

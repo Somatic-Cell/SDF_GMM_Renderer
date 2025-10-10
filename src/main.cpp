@@ -44,7 +44,7 @@ extern "C" int main(int ac, char **av)
       for(const auto& obj : sceneDesc.objects){
           std::cout << "Model File Name:" << obj.file << std::endl;
           
-          if(auto* m = loadModel(obj.file)){
+          if(auto* m = loadModel(obj)){
             models.push_back(m);
           }else {
             std::cerr << "WARNING: failed to load model: " << obj.file << std::endl;

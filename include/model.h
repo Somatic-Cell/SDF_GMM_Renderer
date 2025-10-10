@@ -6,6 +6,7 @@
 #include <cuda_runtime.h>
 #include <box.hpp>
 #include "texture.hpp"
+#include "sceneDescIO.hpp"
 #include "../utils/my_math.hpp"
 
 #include <DirectXTex.h>
@@ -92,7 +93,7 @@ struct Model {
     mymath::matrix3x4           modelMatrix;
 };
 
-Model *loadModel(const std::string &modelFileName);
+Model *loadModel(const sceneIO::Object objectDesc);
 
 struct ComInit {
     HRESULT hr{E_FAIL};

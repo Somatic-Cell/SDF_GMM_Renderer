@@ -68,5 +68,81 @@ namespace mymath{
     return res;
   }
 
+  inline __device__ __host__ matrix3x3 quatToR(const float4 qIn){
+    float len = sqrtf(qIn.x * qIn.x + qIn.y * qIn.y + qIn.z * qIn.z + qIn.w * qIn.w);
+    float4 q = qIn / len;
+
+    float xx = q.x * q.x;
+    float yy = q.y * q.y;
+    float zz = q.z * q.z;
+    
+    float xy = q.x * q.y;
+    float yz = q.y * q.z;
+    float zx = q.z * q.x;
+    
+    float xw = q.x * q.w;
+    float yw = q.y * q.w;
+    float zw = q.z * q.w;
+
+    matrix3x3 R;
+    R.row0 = make_float3(1.0f - 2.0f * (yy + zz),        2.0f * (xy - zw),        2.0f * (zx + yw));
+    R.row1 = make_float3(       2.0f * (xy + zw), 1.0f - 2.0f * (xx + zz),        2.0f * (yz - xw));
+    R.row2 = make_float3(       2.0f * (zx - yw),        2.0f * (yz - xw), 1.0f - 2.0f * (xx + yy));
+    return R;
+  }
+
+  inline __device__ __host__ matrix3x3 composeRS(const float4 q, const float3 s)
+  {
+    matrix3x3 R = quatToR(q);
+    matrix3x3 RS;
+    RS.row0 = make_float3(R.row0.x * s.x, R.row0.y * s.y, R.row0.z * s.z);
+    RS.row1 = make_float3(R.row1.x * s.x, R.row1.y * s.y, R.row1.z * s.z);
+    RS.row2 = make_float3(R.row2.x * s.x, R.row2.y * s.y, R.row2.z * s.z);
+    return RS;
+  }
+
+  inline __device__ __host__ float3 aabbCorner(const float3 bBoxMin, const float3 bBoxMax, int i){
+    return make_float3(
+      (i & 1) ? bBoxMax.x : bBoxMin.x,
+      (i & 2) ? bBoxMax.y : bBoxMin.y,
+      (i & 4) ? bBoxMax.z : bBoxMin.z
+    );
+  }
+
+  inline __device__ __host__ matrix3x4 makeInstanceMatrix(
+    const float3 t,
+    const float4 q,
+    const float3 s,
+    const float3 bBoxCenter,
+    const float3 bBoxMin,
+    bool centerBBoxAtOrigin,
+    bool placeOnGroundY,
+    float groundY = 0.0f
+  ) {
+    // 回転とスケール行列
+    matrix3x3 RS = composeRS(q, s);
+
+    // 中心へのシフト
+    float3 bBoxCenterInWorld = mul3x3(RS, bBoxCenter);
+    float3 dCenter = centerBBoxAtOrigin ? -bBoxCenterInWorld : make_float3(0.0f);
+
+    // 地面の処理
+    float3 bBoxMax = bBoxMin + 2.0f * bBoxCenter;
+    float minY = 1e30f;
+    for(int i = 0; i < 8; ++i){
+      float3 pw = mul3x3(RS, aabbCorner(bBoxMin, bBoxMax, i)) + dCenter;
+      if(pw.y < minY) minY = pw.y;
+    }
+    float3 dGround = placeOnGroundY ? make_float3(0.0f, groundY - minY, 0.0f) : make_float3(0.0f);
+    
+    float3 T = t + dCenter + dGround;
+
+    matrix3x4 M;
+    M.row0 = make_float4(RS.row0, T.x);
+    M.row1 = make_float4(RS.row1, T.y);
+    M.row2 = make_float4(RS.row2, T.z);
+    return M;
+  }
+
 }
 #endif // MY_MATH_HPP_

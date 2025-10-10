@@ -30,6 +30,14 @@ public:
         return m_upper - m_lower;
     }
 
+    inline __host__ __device__ float3 getMin() const
+    {
+        if (!isValid()) {
+            std::cerr << "Box is invalid before calling getMin()" << std::endl;
+        }
+        return m_lower;
+    }
+
 protected:
 
     inline __host__ __device__ bool isValid() const 

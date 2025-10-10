@@ -4,6 +4,7 @@
 NVIDIA CUDA / OptiX を使用．
 
 - [依存関係](#依存関係)
+- [フォルダやファイルの説明](#フォルダやファイルの説明)
 - [準備](#準備)
     1. [ダウンロード](#1-ダウンロード)
     1. [ビルド](#2-ビルド)
@@ -40,6 +41,31 @@ $ vcpkg install tbb blosc openexr zlib boost-iostreams
 - [JSON for Modern C++](https://github.com/nlohmann/json?tab=readme-ov-file)：シーンファイルの読み書き
 - [OpenVDB](https://github.com/AcademySoftwareFoundation/openvdb)：ボリュームデータの読み込み
 - NanoVDB (OpenVDB に内包)：GPU 上でのボリュームデータのサンプリング
+
+## フォルダやファイルの説明
+
+このプロジェクトは，以下のように構成されている：
+```
+.
+├── data        # スペクトラルレンダリングに関係する関数データなどの置き場
+├── envmap      # 環境マップを入れる (.hdr 形式)
+├── ext         # 外部ライブラリの置き場
+├── include     # ヘッダファイルの置き場
+├── kernels     # OptiX 外で使用する CUDA ファイルの置き場
+├── model       # 使用したいメッシュの置き場 (使用できる拡張子：".fbx", ".obj", ".gltf", ".glb", ".ply")
+├── output      # レンダリングした結果を保存した際の出力先
+├── scene       # シーンファイルの置き場
+├── shaders     # OptiX に関係する CUDA ファイルの置き場
+    ├── callable    # Direct callable 関数が実装されたプログラムの置き場
+    ├── device      # シェーダ全体で使用する便利ツールの置き場       
+    ├── entry       # レイトラバーサルのためのシェーダの置き場
+    └── params      # PRD など
+├── src         # ソースファイルの置き場
+├── utils       # 便利ツールの置き場
+├── viewer      # OpenGL を使った，レンダリング過程のビューワ
+├── build.bat   # コマンドプロンプトなどから簡単にビルドするためのバッチファイル
+└── execute.bat # コマンドプロンプトなどから簡単に実行するためのバッチファイル 
+```
 
 ## 準備 (Windows 環境)
 
@@ -152,6 +178,34 @@ endif()
 
 ## 実行
 
+<details><summary>シーンファイルについて</summary>
+
+JSON 形式のファイルを使用して，使用したいメッシュやカメラのパラメータ，レンダラの設定などをまとめて指定する．\
+シーンファイルを ``` /scene ``` フォルダに置く．
+### シーンファイルの構成
+- ``` objects ``` : 使用したいモデルデータを列挙する．複数列挙可能
+    - ``` name ``` : モデルの名前．特にレンダラでは使用されない．JSON ファイルを読み書きするユーザ向けの変数
+    - ``` type ``` : モデルのタイプ．``` "mesh" ``` か ``` "volume" ``` で指定．
+    - ``` file ``` : ファイル名．``` "mesh" ``` の場合，``` /model/ ``` 下のパスを記述．
+    - ``` TRS ``` : オブジェクト全体を併進 (transform), 回転 (rotation), スケール (scale) するためのパラメータ．回転はクォータニオンで表現
+- ``` camera ``` : カメラデータ
+    - ``` from ``` : カメラの位置 
+    - ``` at ``` : カメラが注目する座標
+    - ``` up ``` : カメラの上向きを指定するベクトル
+    - ``` focalLength ``` : 焦点距離．``` PINHOLE ``` モードでは無効
+    - ``` fValue ``` : F値．``` PINHOLE ``` モードでは無効
+    - ``` fov ``` : 視野角．``` THIN_LENS ``` モードでは無効
+    - ``` sensitivity ``` : 疑似的な ISO 値．``` PINHOLE ``` モードでは無効
+    - ``` pintDist ``` : 焦点を合わせたい物体までの距離．``` PINHOLE ``` モードでは無効
+- ``` environment ``` : 環境マップに関する情報．
+    - ``` file ``` : ファイル名．``` /envmap/ ``` 下のパスを記述．現在は ``` .hdr ``` ファイルのみ対応
+- ``` integrator ``` : レンダラの設定
+    - ``` type ``` : 光学計算のアルゴリズムの指定．現在は ``` "Path Tracing" ``` のみ対応
+    - ``` applySpectralRendering ``` : スペクトラルレンダリングを実行するかどうかを boolean で指定
+    - ``` spp ``` : カーネルが一回起動するたびに何サンプル行うか
+    - ``` maxBounce ``` : パストレーシングでレイを追跡する際の最大反射回数
+
+</details>
 
 
 ## レンダラの機能

@@ -192,7 +192,7 @@ endif()
 set(
     GPU_KERNEL_DEPENDENCIES
     ${PROJECT_SOURCE_DIR}/utils/helper_math.h
-    ${PROJECT_SOURCE_DIR}/utils/my_math.h
+    ${PROJECT_SOURCE_DIR}/utils/my_math.hpp
     ${PROJECT_SOURCE_DIR}/include/launch_params.h
     ${PROJECT_SOURCE_DIR}/shaders/params/per_ray_data.cuh
     ${PROJECT_SOURCE_DIR}/shaders/device/random_number_generator.cuh
