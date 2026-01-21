@@ -23,7 +23,7 @@ void Application::save(std::string fileName)
     // レンダリング結果を CPU のメモリに転送
     m_renderer.downloadPixels(m_pixels.data());
     
-    const std::string saveFileName = "output\\" + fileName + std::string(".jpg");
+    const std::string saveFileName = "output\\" + fileName + std::string(".png");
 
     // 反転
     std::vector<uint32_t> flipped = m_pixels;
@@ -33,9 +33,19 @@ void Application::save(std::string fileName)
         std::memcpy(dstRow, srcRow, m_fbSize.x * sizeof(uint32_t));
     }
 
+    std::vector<uint8_t> pixels;
+    pixels.resize(m_pixels.size() * sizeof(uint32_t));
+    std::memcpy(pixels.data(), flipped.data(), pixels.size());
+
     // 書き込み
-    stbi_write_jpg(saveFileName.c_str(),m_fbSize.x,m_fbSize.y,4,
-    flipped.data(),m_fbSize.x*sizeof(uint32_t));
+    uint32_t sizeX = (uint32_t)m_fbSize.x;
+    uint32_t sizeY = (uint32_t)m_fbSize.y;
+    uint32_t channel = 4;
+
+    fpng::fpng_encode_image_to_file(saveFileName.c_str(), pixels.data(), (uint32_t)m_fbSize.x, (uint32_t)m_fbSize.y, (uint32_t)4);
+    // stbi_write_jpg(saveFileName.c_str(),m_fbSize.x,m_fbSize.y,4,
+    // flipped.data(),m_fbSize.x*sizeof(uint32_t));
+
 }
 
 void Application::draw() {

@@ -38,6 +38,14 @@ public:
         return m_lower;
     }
 
+    inline __host__ __device__ float3 getMax() const
+    {
+        if (!isValid()) {
+            std::cerr << "Box is invalid before calling getMax()" << std::endl;
+        }
+        return m_upper;
+    }
+
 protected:
 
     inline __host__ __device__ bool isValid() const 

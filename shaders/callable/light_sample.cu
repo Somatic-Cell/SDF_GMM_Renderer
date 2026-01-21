@@ -21,6 +21,9 @@ extern "C" __device__ LightSample __direct_callable__light_env_sphere_constant(L
     return lightSample;
 }
 
+inline __device__ __host__ float3 rotateY180(const float3 d) {
+    return make_float3(-d.x, d.y, -d.z);
+}
 
 extern "C" __device__ LightSample __direct_callable__light_env_sphere_is(LightDefinition light, PRD* prd)
 {
@@ -70,11 +73,11 @@ extern "C" __device__ LightSample __direct_callable__light_env_sphere_is(LightDe
     const float theta = acosf(fminf(fmaxf(cosTheta, -1.0f), 1.0f));
 
     const float3 wi = sphericalToOrthogonalCoord(theta, phi);
-    lightSample.direction = wi;
+    lightSample.direction = rotateY180(wi);
 
     // サンプリング
     float2 uv = envUVFromSpherical(theta, phi);
-    lightSample.emission = make_float3(tex2D<float4>(optixLaunchParams.envMap, uv.x, uv.y));
+    lightSample.emission = make_float3(tex2D<float4>(optixLaunchParams.envMap, wrap01(uv.x), uv.y));
 
     // PDF の計算
     const float pPatch = wPatch[patchIndex] / totalWeight;
@@ -94,7 +97,7 @@ extern "C" __device__ LightSample __direct_callable__light_triangle(LightDefinit
     TriangleLightData& triangleLightData = optixLaunchParams.light.triangleLightData[light.lightIndexInType];
     
     // 三角形上の一様サンプリング
-    mymath::matrix3x4 matrixO2WPoint = optixLaunchParams.frame.objectMatrixBuffer[prd->instanceID];
+    mymath::matrix3x4 matrixO2WPoint = optixLaunchParams.frame.objectMatrixBuffer[5]; // 5: light
     const float3 V0 = triangleLightData.v0;
     const float3 V1 = triangleLightData.v1;
     const float3 V2 = triangleLightData.v2;
@@ -119,9 +122,9 @@ extern "C" __device__ LightSample __direct_callable__light_triangle(LightDefinit
     float distance = length(sampledPosition - prd->position);
     float3 lightDirection = normalize(sampledPosition - prd->position);
 
-    const float cosTheta = dot(-lightDirection, normalInWorld);
+    const float cosTheta = fabsf(dot(-lightDirection, normalInWorld));
 
-    if(cosTheta > 1e-5f){
+    if(cosTheta > 1e-7f){
         // テクスチャの参照位置
         if(triangleLightData.emissiveTexture.hasTexture){
             const float2 u0 = triangleLightData.uv0;

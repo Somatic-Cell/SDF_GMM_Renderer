@@ -19,7 +19,7 @@ public:
         const uint32_t LCG_A = 1664525u;
         const uint32_t LCG_C = 1013904223u;
         state = (LCG_A * state + LCG_C);
-        return (state & 0x00FFFFFF) / (float) 0x01000000;
+        return (state >> 8) / (float) 0x01000000;
     }
 
     inline __host__ __device__ void init(const unsigned int val0, const unsigned int val1)

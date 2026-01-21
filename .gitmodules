@@ -22,3 +22,6 @@
 [submodule "ext/openvdb"]
 	path = ext/openvdb
 	url = https://github.com/AcademySoftwareFoundation/openvdb.git
+[submodule "ext/--recursive"]
+	path = ext/--recursive
+	url = https://github.com/richgel999/fpng.git

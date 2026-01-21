@@ -107,8 +107,8 @@ struct LaunchParams {
 
         int2    size            {make_int2(1920, 1080)};
         int     accumID         {0};
-        int     numPixelSamples {1};
-        int     maxBounce       {8};
+        int     numPixelSamples {256};
+        int     maxBounce       {16};
         int     frameID         {0};
     } frame;
 
@@ -134,7 +134,7 @@ struct LaunchParams {
         LightDefinition*    lightDefinition;
         TriangleLightData*  triangleLightData;
         int numLights                   {0};
-        float lightIntensityFactor      {10.0f};
+        float lightIntensityFactor      {1.0f};
     } light;
 
     struct {

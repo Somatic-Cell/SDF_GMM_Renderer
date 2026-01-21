@@ -47,7 +47,7 @@
     "pintDist": 1.0
   },
   "environment": {
-    "file": "symmetrical_garden_4k.hdr"
+    "file": "studio_small_07_4k.hdr"
   },
   "integrator": {
     "type": "Path Tracing",

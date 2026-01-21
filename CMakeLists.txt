@@ -58,10 +58,16 @@ option(ASSIMP_BUILD_ASSIMP_TOOLS "If the supplementary tools for Assimp are buil
 option(ASSIMP_BUILD_SAMPLES "If the official samples are built as well (needs Glut)." OFF)
 option(ASSIMP_BUILD_TESTS "If the test suite for Assimp is built in addition to the library." OFF)
 option(ASSIMP_INSTALL "Disable this if you want to use assimp as a submodule." OFF)
+option(ASSIMP_BUILD_ALL_EXPORTERS_BY_DEFAULT "Disable this if ." OFF)
+option(ASSIMP_NO_EXPORT "" ON)
+option(ASSIMP_WARNINGS_AS_ERRORS    "" OFF)
+option(ASSIMP_BUILD_NO_EXCEPTIONS   "" OFF)
+
 # Windows 環境
 if(MSVC)
     option(ASSIMP_BUILD_ASSIMP_VIEW "If the Assimp view tool is built. (requires DirectX)" OFF)
 endif()
+
 add_subdirectory(${EXT_DIR}/assimp)
 
 ### DirectXTex
@@ -119,17 +125,20 @@ target_link_libraries(imgui
 # json
 add_subdirectory(${EXT_DIR}/json)
 
+# fpng
+add_subdirectory(${EXT_DIR}/fpng)
+
 # openvdb
-include(${utils_dir}/cmake/BuildVDB.cmake)
+# include(${utils_dir}/cmake/BuildVDB.cmake)
 #add_library(nvdb_runtime STATIC .cu)
 #target_link_libraries(nvdb_runtime PRIVATE nanovdb_headers)
 
-if(OPENVDB_AVAILABLE OR WITH_OPENVDB)
-    #add_library(vdb_loader STATIC src/vdbLoader.cpp)
-    if(DEFINED OPENVDB_TARGET)
-        #target_link_libraries(vdb_loader PRIVATE ${OPENVDB_TARGET})
-    endif()
-endif()
+# if(OPENVDB_AVAILABLE OR WITH_OPENVDB)
+#     #add_library(vdb_loader STATIC src/vdbLoader.cpp)
+#     if(DEFINED OPENVDB_TARGET)
+#         #target_link_libraries(vdb_loader PRIVATE ${OPENVDB_TARGET})
+#     endif()
+# endif()
 
 ### viewer
 add_subdirectory(viewer)
@@ -293,7 +302,10 @@ add_executable(${PROJECT_NAME}
     "${INCLUDE_DIR}/cuda_buffer.h"
     "${INCLUDE_DIR}/ptx_data_reader.hpp"
     "${INCLUDE_DIR}/application.hpp"
+    "${INCLUDE_DIR}/solid_particle_frame_reader.hpp"
     "${EXT_DIR}/stb/stb_image_write.h"
+    "${EXT_DIR}/fpng/src/fpng.h"
+    "${EXT_DIR}/fpng/src/fpng.cpp"
 )
 
 # -----------------------------------------------------
@@ -358,4 +370,5 @@ message(STATUS "CMAKE_INSTALL_PREFIX = ${CMAKE_INSTALL_PREFIX}")
 message(STATUS "CMAKE_BUILD_TYPE = ${CMAKE_BUILD_TYPE}")
 message(STATUS "CMAKE_INSTALL_LIBDIR = ${CMAKE_INSTALL_LIBDIR}")
 message(STATUS "OPTIX = ${optix_LIBRARY}")
+
 message(STATUS "CUDA_ARCHITECTURES = ${CMAKE_CUDA_ARCHITECTURES}")

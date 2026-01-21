@@ -8,6 +8,7 @@
 #include "../../include/launch_params.h"
 #include <stdio.h>
 
+
 // radiance ray が交差しない = 環境マップにあたる
 extern "C" __global__ void __miss__radiance()
 {

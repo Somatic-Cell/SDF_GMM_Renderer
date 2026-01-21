@@ -80,6 +80,6 @@ extern "C" __device__ float3 __direct_callable__brdf_principled_eval(const float
     const float3 specularColor = evalSpecularBRDF(alpha, F0, wo, wi);
 
     prd->lastHitMaterialType = MATERIAL_TYPE_PRINCIPLED_BRDF;
-    float3 color = diffuseColor * (1.0f - metallic) + specularColor;
+    float3 color = diffuseColor * weightDiffuse + specularColor;
     return color;
 }

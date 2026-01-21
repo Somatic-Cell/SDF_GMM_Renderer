@@ -234,7 +234,7 @@ private:
     float m_sensorSize    {35.0f};    // mm
     float m_sensitivity   {1.0f};
     float m_pintDist      {100.0f};   // m
-    float m_fov           {50.0f};    // degree
+    float m_fov           {20.0f};    // degree
     
     bool  m_forceUp       {true};
     float m_motionSpeed   {1.0f};

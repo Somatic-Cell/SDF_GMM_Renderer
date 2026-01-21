@@ -26,30 +26,6 @@
 #include <unistd.h>
 #endif
 
-struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) RaygenRecord
-{
-    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-    void *data;
-};
-
-struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) MissRecord
-{
-    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-    void *data;
-};
-
-struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) CallableRecord
-{
-    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-    void* data;
-};
-
-struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) HitgroupRecord
-{
-    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
-    TriangleMeshSBTData data;
-};
-
 
 Renderer::Renderer(std::vector<const Model*> models) : m_models(models)
 {
@@ -375,15 +351,33 @@ bool Renderer::buildAccel()
     // ==========================
     // IAS (TLAS) の構築
     // ==========================
+    std::filesystem::path exePath;
+    char path_buffer[MAX_PATH] = {};
+#if defined(_WIN32)
+    if(GetModuleFileNameA(NULL, path_buffer, MAX_PATH) == 0){
+        std::cerr << "ERROR: GetModuleFileNameA failed" << std::endl;
+    }
+    exePath = std::filesystem::path(path_buffer);
+#else
+    ssize_t count = readlink("/proc/self/exe", exePath, PATH_MAX);
+    if(count == -1) {
+        std::cerr << "ERROR: readlink() failed" << std::endl;
+    }
+#endif
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/dam_star2_koban3_N25/render/0_solid_particles.txt";
+
+    m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
 
     std::cout << "Building IAS..." << std::endl;
-    std::vector<OptixInstance> instances(numMeshes);
+    m_h_instance.resize(m_particles.size() + 4);
 
-    for(unsigned int meshID = 0; meshID < numMeshes; meshID++){
-        OptixInstance & inst = instances[meshID];
+    std::cout << "Background" << std::endl;
+    // background
+    {
+        OptixInstance & inst = m_h_instance[0];
         memset(&inst, 0, sizeof(OptixInstance));
 
-        mymath::matrix3x4 mat = objectMatrix[meshID];
+        mymath::matrix3x4 mat = objectMatrix[3]; // 3:background
         float transform[12] = {
             mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
             mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
@@ -392,29 +386,127 @@ bool Renderer::buildAccel()
 
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
-        inst.instanceId     = meshID;
-        inst.sbtOffset      = meshID * RAY_TYPE_COUNT;
+        inst.instanceId     = 0;
+        inst.sbtOffset      = 3 * RAY_TYPE_COUNT; // 0:background
         inst.visibilityMask = 255;
         inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
                                                             // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
                                                             // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
-        inst.traversableHandle  = m_gasHandle[meshID];
+        inst.traversableHandle  = m_gasHandle[3]; 
+    }
+    
+
+    // water
+    std::cout << "Water" << std::endl;
+    {
+        OptixInstance & inst = m_h_instance[1];
+        memset(&inst, 0, sizeof(OptixInstance));
+
+        mymath::matrix3x4 mat = objectMatrix[2]; // water
+        float transform[12] = {
+            mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
+            mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
+            mat.row2.x, mat.row2.y, mat.row2.z, mat.row2.w, 
+        };
+
+        memcpy(inst.transform, transform, sizeof(float) * 12);
+
+        inst.instanceId     = 1;
+        inst.sbtOffset      = 2 * RAY_TYPE_COUNT; // 1:water
+        inst.visibilityMask = 255;
+        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
+                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
+                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
+        inst.traversableHandle  = m_gasHandle[2]; // 1:water
     }
 
-    m_instance.allocAndUpload(instances);
+    // wall
+    std::cout << "Wall" << std::endl;
+    {
+        OptixInstance & inst = m_h_instance[2];
+        memset(&inst, 0, sizeof(OptixInstance));
+
+        mymath::matrix3x4 mat = objectMatrix[4]; // background
+        float transform[12] = {
+            mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
+            mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
+            mat.row2.x, mat.row2.y, mat.row2.z, mat.row2.w, 
+        };
+
+        memcpy(inst.transform, transform, sizeof(float) * 12);
+
+        inst.instanceId     = 2;
+        inst.sbtOffset      = 4 * RAY_TYPE_COUNT; // 4:wall
+        inst.visibilityMask = 255;
+        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
+                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
+                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
+        inst.traversableHandle  = m_gasHandle[4]; // 4:wall
+    }
+    // light
+    {
+        OptixInstance & inst = m_h_instance[3];
+        memset(&inst, 0, sizeof(OptixInstance));
+
+        mymath::matrix3x4 mat = objectMatrix[5]; // 5:light
+        float transform[12] = {
+            mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
+            mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
+            mat.row2.x, mat.row2.y, mat.row2.z, mat.row2.w, 
+        };
+
+        memcpy(inst.transform, transform, sizeof(float) * 12);
+
+        inst.instanceId     = 3;
+        inst.sbtOffset      = 5 * RAY_TYPE_COUNT; // 5:light
+        inst.visibilityMask = 255;
+        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
+                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
+                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
+        inst.traversableHandle  = m_gasHandle[5]; // 5:light
+    }
+
+    // 4--: particles
+    for(unsigned int particleInstranceID = 0; particleInstranceID < m_particles.size(); particleInstranceID++){
+        OptixInstance & inst = m_h_instance[particleInstranceID+4];
+        memset(&inst, 0, sizeof(OptixInstance));
+
+        float transform[12];
+        m_particleReader.makeOptixTransformRowMajor3x4(m_particles[particleInstranceID], transform);
+
+        memcpy(inst.transform, transform, sizeof(float) * 12);
+
+        inst.instanceId     = particleInstranceID+4;
+        inst.sbtOffset      = (m_particles[particleInstranceID].meshID) * RAY_TYPE_COUNT;
+        inst.visibilityMask = 255;
+        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
+                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
+                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
+        inst.traversableHandle  = m_gasHandle[m_particles[particleInstranceID].meshID];
+    }
+
+    m_instance.allocAndUpload(m_h_instance);
 
     OptixBuildInput instanceInput = {};
     instanceInput.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
     instanceInput.instanceArray.instances    = m_instance.getDevicePointer();
-    instanceInput.instanceArray.numInstances = static_cast<unsigned int>(instances.size());
+    instanceInput.instanceArray.numInstances = static_cast<unsigned int>(m_h_instance.size());
 
 
     // IAS のセットアップ
     
     OptixAccelBuildOptions  accelOptions    = {};
-    accelOptions.buildFlags                 = OPTIX_BUILD_FLAG_NONE | OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+    accelOptions.buildFlags                 = OPTIX_BUILD_FLAG_ALLOW_UPDATE;
     if(getNumDevices() == 1){
         // 複数 GPU を使うと性能が悪化する恐れがあるため，単一 GPU の場合のみオプションを追加
         accelOptions.buildFlags             |= OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
@@ -423,7 +515,7 @@ bool Renderer::buildAccel()
     accelOptions.operation                  = OPTIX_BUILD_OPERATION_BUILD; // 新規構築． ..._UPDATE を使うと更新
     
     // AS に必要なバッファサイズの見積もり
-    OptixAccelBufferSizes iasBufferSizes;
+    OptixAccelBufferSizes iasBufferSizes = {};
     OPTIX_CHECK(
         optixAccelComputeMemoryUsage(
             m_optixContext,
@@ -434,69 +526,36 @@ bool Renderer::buildAccel()
         )
     );
 
-    // Compaction の準備
-    // IAS を最悪のケースを想定して作るので，作成後に不要となった部分を圧縮することで VRAM を節約可能
-    CUDABuffer compactedSizeBuffer;
-    compactedSizeBuffer.alloc(sizeof(uint64_t));
+    const size_t scratchSize = max(iasBufferSizes.tempSizeInBytes, iasBufferSizes.tempUpdateSizeInBytes);
 
-    OptixAccelEmitDesc emitDesc;                        // IAS 構築時の圧縮後サイズ，AABB の範囲，インスタンスの変換行列... を出力してくれる補助出力の構造体
-    emitDesc.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE; // 圧縮後のサイズを返すように指定
-    emitDesc.result = compactedSizeBuffer.getDevicePointer();
+    m_IASScratch.alloc(scratchSize);
+    m_IASBuffer.alloc(iasBufferSizes.outputSizeInBytes);
 
     // IAS の構築
-    CUDABuffer tempBuffer;
-    tempBuffer.alloc(iasBufferSizes.tempSizeInBytes);
-
-    CUDABuffer outputBuffer;
-    outputBuffer.alloc(iasBufferSizes.outputSizeInBytes);
-
     OPTIX_CHECK(
         optixAccelBuild(
             m_optixContext,
-            0, // stream
+            m_stream, // stream
             &accelOptions,
             &instanceInput,
             1,         
             
             // temp
-            tempBuffer.getDevicePointer(),
-            tempBuffer.getSizeInBytes(),
+            m_IASScratch.getDevicePointer(),
+            m_IASScratch.getSizeInBytes(),
 
             // output
-            outputBuffer.getDevicePointer(),
-            outputBuffer.getSizeInBytes(),
+            m_IASBuffer.getDevicePointer(),
+            m_IASBuffer.getSizeInBytes(),
 
             &m_iasHandle,
 
-            &emitDesc, 1
+            nullptr, 0
         )
     );
 
     CUDA_SYNC_CHECK();
     
-    // Compaction の実行
-    uint64_t compactedSize;
-    compactedSizeBuffer.download(&compactedSize, 1);
-
-    m_IASBuffer.alloc(compactedSize);
-    OPTIX_CHECK(
-        optixAccelCompact(
-            m_optixContext,
-            0,
-            m_iasHandle,
-            m_IASBuffer.getDevicePointer(),
-            m_IASBuffer.getSizeInBytes(),
-            &m_iasHandle
-        )
-    );
-
-    CUDA_SYNC_CHECK();
-
-    // クリーンアップ
-    outputBuffer.free();
-    tempBuffer.free();
-    compactedSizeBuffer.free();
-
     return true;
 }
 
@@ -552,11 +611,6 @@ void Renderer::createContext()
             &m_optixContext // 生成されたコンテキストをここに出力，格納
         )
     );
-    
-
-    // OptixDeviceContextOptions options = {};
-    // options.logCallbackFunction = contextLogCallback;
-    // options.
 
 
     OPTIX_CHECK(
@@ -932,7 +986,7 @@ void Renderer::buildSBT()
     // Hitgroup records の登録
     // size_t numObjects = 0;
     // for(auto* mdl: m_models) numObjects += mdl->meshes.size();
-    std::vector<HitgroupRecord> hitgroupRecords;
+    m_h_hitgroupRecords.clear();
 
     size_t flat = 0;
     int numTextures = 0;
@@ -976,6 +1030,13 @@ void Renderer::buildSBT()
                     } else {
                         rec.data.materialType = MATERIAL_TYPE_DIFFUSE;
                     }
+
+                    if(modelIndex == 2){
+                        rec.data.materialType = MATERIAL_TYPE_GLASS;
+                    } else if(modelIndex < 2){
+                        rec.data.materialType = MATERIAL_TYPE_PRINCIPLED_BRDF;
+                    }
+
                     // Texture の登録
                     if(material->diffuseTextureID >= 0){
                         rec.data.diffuseTexture.hasTexture  = true;
@@ -995,7 +1056,7 @@ void Renderer::buildSBT()
                     }
 
                 }
-                hitgroupRecords.push_back(rec);
+                m_h_hitgroupRecords.push_back(rec);
             }
         }
         numTextures +=(int)mdl->textures.size();
@@ -1003,21 +1064,21 @@ void Renderer::buildSBT()
     }
     
     
-    m_hitgroupRecordsBuffer.allocAndUpload(hitgroupRecords);                        // GPU に情報を転送
+    m_hitgroupRecordsBuffer.allocAndUpload(m_h_hitgroupRecords);                        // GPU に情報を転送
     m_sbt.hitgroupRecordBase            = m_hitgroupRecordsBuffer.getDevicePointer();    // hitgroupRecords バッファのデバイス上の先頭アドレスを sbt に登録
     m_sbt.hitgroupRecordStrideInBytes   = sizeof(HitgroupRecord);                   // 
-    m_sbt.hitgroupRecordCount           = (int)hitgroupRecords.size();
+    m_sbt.hitgroupRecordCount           = (int)m_h_hitgroupRecords.size();
 }
 
 void Renderer::render()
 {
     if(m_launchParams.frame.size.x == 0) return;
 
-    if(! m_isAccumulate){
-        m_launchParams.frame.frameID = 0;
-    }
+    // if(! m_isAccumulate){
+    //     m_launchParams.frame.frameID = 0;
+    // }
     m_launchParamsBuffer.upload(&m_launchParams, 1);
-    m_launchParams.frame.frameID ++;
+    m_launchParams.frame.frameID += 2;
 
     OPTIX_CHECK(optixLaunch(
         m_pipeline, m_stream,
@@ -1391,7 +1452,7 @@ void Renderer::createLightTable()
     m_triangleLightDataTable.clear();
 
     int numMeshes = 0;
-    for(auto* mdl : m_models) (int)mdl->meshes.size();
+    // for(auto* mdl : m_models) (int)mdl->meshes.size();
 
     for(auto* mdl : m_models){
         for(int meshID = 0; meshID < (int)mdl->meshes.size(); ++meshID){
@@ -1475,4 +1536,311 @@ void Renderer::setExposure(const float exposure){
 
 float Renderer::getExposure() const{
     return m_exposure;
+}
+
+bool Renderer::loadParticleInfoFromTxtFile(std::string& path){
+    std::string err;
+    if(!m_particleReader.loadFromFile(path, m_particles, &err)){
+        throw std::runtime_error(err);
+    }
+
+    // for(size_t i = 0; i < m_patricles.size(); ++i){
+    //     float 
+    // }
+}
+
+void Renderer::updateScene(Model* model){
+    // BLAS
+    // ===========================
+    // GAS (BLAS) を構築　（メッシュごとに 1 つ）
+    // ===========================
+    size_t flat = 2;
+    for(int meshID = 0; meshID < (int)model->meshes.size(); ++meshID){
+
+        // 三角形の入力
+        OptixBuildInput     triangleInput;
+        CUdeviceptr         d_vertices;
+        CUdeviceptr         d_indices;
+        uint32_t            triangleInputFlags;
+
+        TriangleMesh &mesh = *model->meshes[meshID];
+        m_vertexBuffer[flat].free();
+        m_vertexBuffer[flat].allocAndUpload(mesh.vertex);
+        m_indexBuffer[flat].free();
+        m_indexBuffer[flat].allocAndUpload(mesh.index);
+        if(!mesh.normal.empty()){
+            m_normalBuffer[flat].free();
+            m_normalBuffer[flat].allocAndUpload(mesh.normal);
+        }
+        if(!mesh.diffuseTexcoord.empty()){
+            m_diffuseTexcoordBuffer[flat].free();
+            m_diffuseTexcoordBuffer[flat].allocAndUpload(mesh.diffuseTexcoord);
+        }
+        if(!mesh.normalTexcoord.empty()){
+            m_normalTexcoordBuffer[flat].free();
+            m_normalTexcoordBuffer[flat].allocAndUpload(mesh.normalTexcoord);
+        }
+        if(!mesh.emissiveTexcoord.empty()){
+            m_emissiveTexcoordBuffer[flat].free();
+            m_emissiveTexcoordBuffer[flat].allocAndUpload(mesh.emissiveTexcoord);
+        }
+        if(!mesh.tangent.empty()){
+            m_tangentBuffer[flat].free();
+            m_tangentBuffer[flat].allocAndUpload(mesh.tangent);
+        }
+
+
+        triangleInput = {}; // ここに情報を入れていく
+        triangleInput.type = OPTIX_BUILD_INPUT_TYPE_TRIANGLES;
+
+        d_vertices = m_vertexBuffer[flat].getDevicePointer();
+        d_indices = m_indexBuffer[flat].getDevicePointer();
+
+        // 頂点情報
+        triangleInput.triangleArray.vertexFormat        = OPTIX_VERTEX_FORMAT_FLOAT3;
+        triangleInput.triangleArray.vertexStrideInBytes = sizeof(float3);
+        triangleInput.triangleArray.numVertices         = (int)mesh.vertex.size();
+        triangleInput.triangleArray.vertexBuffers       = &d_vertices;
+
+        // 頂点のインデックス情報
+        triangleInput.triangleArray.indexFormat         = OPTIX_INDICES_FORMAT_UNSIGNED_INT3;
+        triangleInput.triangleArray.indexStrideInBytes  = sizeof(uint3);
+        triangleInput.triangleArray.numIndexTriplets    = (int)mesh.index.size();
+        triangleInput.triangleArray.indexBuffer         = d_indices;
+
+        triangleInputFlags = OPTIX_GEOMETRY_FLAG_NONE;  // 特別な設定を行わない
+        // MEMO: 
+        // OPTIX_GEOMETRY_FLAG_DISABLE_ANYHIT : any_hit シェーダを無効化
+        // OPTIX_GEOMETRY_FLAG_REQUIRE_SINGLE_ANYHIT_CALL : 1回だけ any-hit をよぶ
+        // OPTIX_GEOMETRY_FLAG_DISABLE_TRIANGLE_FACE_CULLING :  バックフェースカリングを無効化　
+        //                                                      （薄いマテリアルをレンダリングしたいときにたてる）
+
+        // 単一の SBT レコードを使用
+        triangleInput.triangleArray.flags                       = &triangleInputFlags;
+        triangleInput.triangleArray.numSbtRecords               = 1;        // 単一の SBT レコード
+        // 単一の場合，未使用なので 0 
+        triangleInput.triangleArray.sbtIndexOffsetBuffer        = 0;        
+        triangleInput.triangleArray.sbtIndexOffsetSizeInBytes   = 0;
+        triangleInput.triangleArray.sbtIndexOffsetStrideInBytes = 0;
+
+
+        // GAS のセットアップ
+        OptixAccelBuildOptions  accelOptions    = {};
+        accelOptions.buildFlags                 = OPTIX_BUILD_FLAG_NONE | OPTIX_BUILD_FLAG_ALLOW_COMPACTION;
+        if(getNumDevices() == 1){
+            // 複数 GPU を使うと性能が悪化する恐れがあるため，単一 GPU の場合のみオプションを追加
+            accelOptions.buildFlags             |= OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
+        }
+        accelOptions.motionOptions.numKeys      = 1;    // モーションブラーなし． numKeys > 1 でブラー補間
+        accelOptions.operation                  = OPTIX_BUILD_OPERATION_BUILD; // 新規構築． ..._UPDATE を使うと更新
+
+
+        // AS に必要なバッファサイズの見積もり
+        OptixAccelBufferSizes gasBufferSizes;
+        OPTIX_CHECK(
+            optixAccelComputeMemoryUsage(
+                m_optixContext,
+                &accelOptions,
+                &triangleInput,
+                1,              // メッシュの個数．今回は1個ずつ作成しているので1
+                &gasBufferSizes
+            )
+        );
+
+        // Compaction の準備
+        // AS を最悪のケースを想定して作るので，作成後に不要となった部分を圧縮することで VRAM を節約可能
+        
+        CUDABuffer compactedSizeBuffer;
+        compactedSizeBuffer.alloc(sizeof(uint64_t));
+
+        OptixAccelEmitDesc emitDesc;                        // AS 構築時の圧縮後サイズ，AABB の範囲，インスタンスの変換行列... を出力してくれる補助出力の構造体
+        emitDesc.type = OPTIX_PROPERTY_TYPE_COMPACTED_SIZE; // 圧縮後のサイズを返すように指定
+        emitDesc.result = compactedSizeBuffer.getDevicePointer();
+
+        // GAS の構築
+        CUDABuffer tempBuffer;
+        tempBuffer.alloc(gasBufferSizes.tempSizeInBytes);
+
+        CUDABuffer outputBuffer;
+        outputBuffer.alloc(gasBufferSizes.outputSizeInBytes);
+
+        OPTIX_CHECK(
+            optixAccelBuild(
+                m_optixContext,
+                0, // stream
+                &accelOptions,
+                &triangleInput,
+                1,              // メッシュの個数．今回は1個ずつ作成しているので1
+                
+                // temp
+                tempBuffer.getDevicePointer(),
+                tempBuffer.getSizeInBytes(),
+
+                // output
+                outputBuffer.getDevicePointer(),
+                outputBuffer.getSizeInBytes(),
+
+                &m_gasHandle[flat],
+
+                &emitDesc, 1
+            )
+        );
+
+        CUDA_SYNC_CHECK();
+        // Compaction の実行
+        uint64_t compactedSize;
+        compactedSizeBuffer.download(&compactedSize, 1);
+        m_GASBuffer[flat].alloc(compactedSize);
+        OPTIX_CHECK(
+            optixAccelCompact(
+                m_optixContext,
+                0,
+                m_gasHandle[flat],
+                m_GASBuffer[flat].getDevicePointer(),
+                m_GASBuffer[flat].getSizeInBytes(),
+                &m_gasHandle[flat]
+            )
+        );
+
+        CUDA_SYNC_CHECK();
+
+        // クリーンアップ
+        outputBuffer.free();
+        tempBuffer.free();
+        compactedSizeBuffer.free();
+    }
+
+    m_h_instance[1].traversableHandle = m_gasHandle[flat];
+
+    
+    // ==========================
+    // IAS (TLAS) の構築
+    // ==========================
+    std::filesystem::path exePath;
+    char path_buffer[MAX_PATH] = {};
+#if defined(_WIN32)
+    if(GetModuleFileNameA(NULL, path_buffer, MAX_PATH) == 0){
+        std::cerr << "ERROR: GetModuleFileNameA failed" << std::endl;
+    }
+    exePath = std::filesystem::path(path_buffer);
+#else
+    ssize_t count = readlink("/proc/self/exe", exePath, PATH_MAX);
+    if(count == -1) {
+        std::cerr << "ERROR: readlink() failed" << std::endl;
+    }
+#endif
+    int nowIndex = m_launchParams.frame.frameID;
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/dam_star2_koban3_N25/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
+    std::cout << partecleTxtDir.string() << std::endl;
+
+    m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
+
+    std::cout << "Building IAS..." << std::endl;
+
+    // 4--: particles
+    for(unsigned int particleInstranceID = 0; particleInstranceID < m_particles.size(); particleInstranceID++){
+        OptixInstance & inst = m_h_instance[particleInstranceID+4];
+        memset(&inst, 0, sizeof(OptixInstance));
+
+        float transform[12];
+        m_particleReader.makeOptixTransformRowMajor3x4(m_particles[particleInstranceID], transform);
+
+        memcpy(inst.transform, transform, sizeof(float) * 12);
+
+        inst.instanceId     = particleInstranceID+4;
+        inst.sbtOffset      = (m_particles[particleInstranceID].meshID) * RAY_TYPE_COUNT;
+        inst.visibilityMask = 255;
+        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
+                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
+                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
+        inst.traversableHandle  = m_gasHandle[m_particles[particleInstranceID].meshID];
+    }
+
+    m_instance.allocAndUpload(m_h_instance);
+
+    OptixBuildInput instanceInput = {};
+    instanceInput.type = OPTIX_BUILD_INPUT_TYPE_INSTANCES;
+    instanceInput.instanceArray.instances    = m_instance.getDevicePointer();
+    instanceInput.instanceArray.numInstances = static_cast<unsigned int>(m_h_instance.size());
+
+
+    // IAS のセットアップ
+    OptixAccelBuildOptions  accelOptions    = {};
+    accelOptions.buildFlags                 = OPTIX_BUILD_FLAG_ALLOW_UPDATE;
+    if(getNumDevices() == 1){
+        // 複数 GPU を使うと性能が悪化する恐れがあるため，単一 GPU の場合のみオプションを追加
+        accelOptions.buildFlags             |= OPTIX_BUILD_FLAG_PREFER_FAST_TRACE;
+    }
+    accelOptions.motionOptions.numKeys      = 1;    // モーションブラーなし． numKeys > 1 でブラー補間
+    accelOptions.operation                  = OPTIX_BUILD_OPERATION_UPDATE; // 新規構築． ..._UPDATE を使うと更新
+
+    // IAS の構築
+    OPTIX_CHECK(
+        optixAccelBuild(
+            m_optixContext,
+            m_stream, // stream
+            &accelOptions,
+            &instanceInput,
+            1,         
+            
+            // temp
+            m_IASScratch.getDevicePointer(),
+            m_IASScratch.getSizeInBytes(),
+
+            // output
+            m_IASBuffer.getDevicePointer(),
+            m_IASBuffer.getSizeInBytes(),
+
+            &m_iasHandle,
+
+            nullptr, 0
+        )
+    );
+
+    CUDA_SYNC_CHECK();
+
+    // SBT Update
+    const uint32_t waterSlot = 2;
+    auto mesh = model->meshes[0];
+    for(int rayID = 0; rayID < RAY_TYPE_COUNT; ++rayID)
+    {
+        const uint32_t sbtIdx = waterSlot * RAY_TYPE_COUNT + rayID;
+        
+        HitgroupRecord rec = m_h_hitgroupRecords[sbtIdx];
+        OPTIX_CHECK(optixSbtRecordPackHeader(m_hitgroupPrograms[rayID], &rec));   // HitgroupRecord.header に， m_hitgroupPrograms[rayID] を登録
+        // 幾何情報の登録
+        rec.data.vertex             = (float3*)m_vertexBuffer[waterSlot].getDevicePointer();
+        rec.data.index              = (uint3*)m_indexBuffer[waterSlot].getDevicePointer();
+        rec.data.normal             = (float3*)m_normalBuffer[waterSlot].getDevicePointer();
+        rec.data.tangent            = (float4*)m_tangentBuffer[waterSlot].getDevicePointer();
+        rec.data.diffuseTexcoord    = (float2*)m_diffuseTexcoordBuffer[waterSlot].getDevicePointer();
+        rec.data.normalTexcoord     = (float2*)m_normalTexcoordBuffer[waterSlot].getDevicePointer();
+        rec.data.emissiveTexcoord   = (float2*)m_emissiveTexcoordBuffer[waterSlot].getDevicePointer();
+        rec.data.hasTangent         = mesh->hasTangentSpace;
+        rec.data.hasNormal          = mesh->hasNormal;
+        rec.data.instanceID         = waterSlot;
+        
+        // Material 情報の登録
+        auto material = model->materials[0];
+        rec.data.roughness  = material->roughness;
+        rec.data.metallic   = material->metallic;
+        rec.data.emissive   = material->emissive;
+        rec.data.color      = material->diffuse;
+        // Material Type
+        rec.data.materialType = MATERIAL_TYPE_GLASS;
+
+        m_h_hitgroupRecords[sbtIdx] = rec;
+    }
+    
+    
+    m_hitgroupRecordsBuffer.free(); 
+    m_hitgroupRecordsBuffer.allocAndUpload(m_h_hitgroupRecords);                        // GPU に情報を転送
+    m_sbt.hitgroupRecordBase            = m_hitgroupRecordsBuffer.getDevicePointer();    // hitgroupRecords バッファのデバイス上の先頭アドレスを sbt に登録
+    m_sbt.hitgroupRecordStrideInBytes   = sizeof(HitgroupRecord);                   // 
+    m_sbt.hitgroupRecordCount           = (int)m_h_hitgroupRecords.size();
+
+    CUDA_SYNC_CHECK();
+
 }

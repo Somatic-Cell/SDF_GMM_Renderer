@@ -109,13 +109,19 @@ inline __device__ __host__ float3 worldToLocal(const float3 v, const float3 loca
     return normalize(make_float3(dot(v, localX), dot(v, localY), dot(v, localZ)));
 }
 
+inline __device__ __host__ float wrap01(float x) {
+    x -= floorf(x);          // [0,1) に折り返し
+    return x;
+}
+
 // 球面座標
 inline __device__ __host__ void orthogonalToUVCoord(const float3 dir, float* u, float* v) {
     // const float3 dir = normalize(_dir);
     float phi = atan2f(dir.z, dir.x);
     if(phi < 0.0f) phi += 2.0f * M_PI;
     float theta = acosf(fminf(fmaxf(dir.y, -1.0f), 1.0f));
-    *u = phi / (2.f * M_PI);
+    float uu = phi / (2.f * M_PI);
+    *u = wrap01(uu + 0.5f);
     *v = theta / M_PI;
 }
 
@@ -204,7 +210,7 @@ inline __device__ float3 schlick(const float3 wo, const float3 n, const float3 F
 }
 
 inline __device__ float schlick(const float3 wo, const float3 n, const float F0){
-    return F0 + (1.0f - F0) * powf(1.f - dot(wo, n), 5);
+    return F0 + (1.0f - F0) * powf(1.f - fabsf(dot(wo, n)), 5);
 }
 
 inline __device__ float3 evalSpecularBRDF( const float alpha, 
@@ -285,5 +291,50 @@ static __forceinline__ __device__ float2 envUVFromSpherical(
     return make_float2(u, v);
 }
 
+static __forceinline__ __device__ uint32_t hash_u32(uint32_t x)
+{
+    x ^= x >> 16;
+    x *= 0x7feb352dU;
+    x ^= x >> 15;
+    x *= 0x846ca68bU;
+    x ^= x >> 16;
+    return x;
+}
+
+
+static __forceinline__ __device__ float u32_to_unit_float(uint32_t x)
+{
+    // 下位24bitを使って [0,1) に正規化（24bit精度）
+    return (x & 0x00FFFFFFu) * (1.0f / 16777216.0f); // 2^24
+}
+
+static __forceinline__ __device__ float3 hsv2rgb(float h, float s, float v)
+{
+    float c = v * s;
+    float hp = h * 6.0f;
+    float x = c * (1.0f - fabsf(fmodf(hp, 2.0f) - 1.0f));
+    float3 rgb;
+    if      (hp < 1) rgb = make_float3(c, x, 0);
+    else if (hp < 2) rgb = make_float3(x, c, 0);
+    else if (hp < 3) rgb = make_float3(0, c, x);
+    else if (hp < 4) rgb = make_float3(0, x, c);
+    else if (hp < 5) rgb = make_float3(x, 0, c);
+    else             rgb = make_float3(c, 0, x);
+    float m = v - c;
+    return rgb + make_float3(m);
+}
+
+static __forceinline__ __device__ float3 instanceIdToRGB(uint32_t instanceID, uint32_t seed = 0u)
+{
+    // seed を変えると配色パターンを変えられます
+    uint32_t x = instanceID ^ (seed * 0x9e3779b9u);
+    uint32_t h = hash_u32(x);
+
+    float hue = ((h >> 8) & 0x00FFFFFFu) * (1.0f / 16777216.0f);
+    // uint32_t h1 = hash_u32(h0 ^ 0xA511E9B3u);
+    // uint32_t h2 = hash_u32(h1 ^ 0x63D83595u);
+
+    return hsv2rgb(hue, 0.85f, 0.95f);
+}
 
 #endif // SHADER_COMMON_CUH_

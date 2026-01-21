@@ -8,6 +8,7 @@
 #include "cuda_buffer.h"
 #include "model.h"
 #include "launch_params.h"
+#include "solid_particle_frame_reader.hpp"
 #include <cuda_runtime.h>
 
 enum class OptixModuleIdentifier{
@@ -47,7 +48,7 @@ struct Camera {
     //intrinsics
     float focalLength   {50.0f};
     float fValue        {2.8f};
-    float fov           {50.f};      // degrees
+    float fov           {20.f};      // degrees
     float pintDist      {1.0f};
     float sensitivity   {1.0f};
 
@@ -64,6 +65,30 @@ struct Camera {
         pintDist = _pintDist;
         sensitivity = _sensitivity;
     }
+};
+
+struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) RaygenRecord
+{
+    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+    void *data;
+};
+
+struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) MissRecord
+{
+    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+    void *data;
+};
+
+struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) CallableRecord
+{
+    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+    void* data;
+};
+
+struct __align__( OPTIX_SBT_RECORD_ALIGNMENT ) HitgroupRecord
+{
+    __align__( OPTIX_SBT_RECORD_ALIGNMENT ) char header[OPTIX_SBT_RECORD_HEADER_SIZE];
+    TriangleMeshSBTData data;
 };
 
 
@@ -84,6 +109,7 @@ public:
     int getRenderBufferType() const;
     const LaunchParams  getLaunchParams() const;
     const CUDABuffer&   getFinalColorBuffer() const;
+    void updateScene(Model* model);
 
     // Tonemap 用
     void setWhite(const float white);
@@ -109,6 +135,7 @@ protected:
     void createCUDAModule();
 
     void createLightTable();
+    bool loadParticleInfoFromTxtFile(std::string& path);
 
     CUcontext           m_cudaContext;
     CUstream            m_stream;
@@ -171,7 +198,12 @@ protected:
 
     std::vector<CUDABuffer> m_GASBuffer;
     CUDABuffer              m_IASBuffer;
+    CUDABuffer              m_IASScratch;
     CUDABuffer              m_instance;
+
+    std::vector<OptixInstance> m_h_instance;
+
+    std::vector<HitgroupRecord> m_h_hitgroupRecords;
 
     std::vector<OptixTraversableHandle> m_gasHandle;
     OptixTraversableHandle              m_iasHandle;
@@ -182,7 +214,7 @@ protected:
     
     CUDABuffer  m_envMapBuffer;
     int m_numDevices            {0};
-    bool m_isAccumulate         {true};
+    bool m_isAccumulate         {false};
 
     std::vector<std::string> m_optixModuleFileNames;    // optix 用の .ptx .optixir のコード一覧
     std::vector<std::string> m_cudaModuleFileNames;     // cuda 用の.ptx のコード一覧
@@ -204,10 +236,13 @@ protected:
     CUDABuffer  m_envCDFCoarseConditional;  // W x H
     CUDABuffer  m_envPatchWeight;           // W x H
 
-    float m_exposure    {0.5f};
-    float m_white       {5.0f};
-    
+    float m_exposure    {0.6f};
+    float m_white       {100.0f};
+
+    SolidParticlesFrameReader m_particleReader;
+    std::vector<ParticleInstance> m_particles;
 };
+
 
 
 

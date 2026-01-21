@@ -8,6 +8,10 @@
 #include "sceneDescIO.hpp"
 #include <gl/GL.h>
 
+#define FPNG_IMPLEMENTATION
+#include "../ext/fpng/src/fpng.h"
+
+
 // #if defined(_WIN32)
 // #include <windows.h>
 // #ifndef NOMINMAX
@@ -96,6 +100,8 @@ public:
         createCUDAModule();
         fetchCUDAFunction();
 
+        fpng::fpng_init();
+
     }
 
     ~Application() override;
@@ -119,6 +125,16 @@ public:
             m_cameraFrame.setIsTransformDirty(false);
         }
 
+        sceneIO::Object obj;
+        LaunchParams lp = m_renderer.getLaunchParams();
+        obj.file = "dam_star2_koban3_N25\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
+        Model* model = loadModel(obj);
+        float3 bboxMin = model->bounds.getMin();
+        float3 bboxMax = model->bounds.getMax();
+
+        std::cout << "BBox min: x: " << bboxMin.x << ", y: " << bboxMin.y << ", z: " << bboxMin.z << std::endl;
+        std::cout << "BBox max: x: " << bboxMax.x << ", y: " << bboxMax.y << ", z: " << bboxMax.z << std::endl;
+        m_renderer.updateScene(model);
         m_renderer.render();
 
     }
