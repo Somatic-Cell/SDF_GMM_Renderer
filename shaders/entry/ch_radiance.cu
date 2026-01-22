@@ -119,7 +119,7 @@ extern "C" __global__ void __closesthit__radiance()
         albedo = make_float3(0.445f, 0.776f, 0.934f);
     }
     float density[6] = {0.99f, 1.00f, 1.05f, 1.15f, 1.25f, 1.5f};
-    if(instID >= 4){
+    if(instID >= 7){
         albedo = instanceIdToRGB(instID * 3);
         // float ratio = density[instID - 4] / density[5];
         // albedo = make_float3(0.87f, 0.152f, 0.157f) * ratio + make_float3(0.9f) * (1.0f - ratio);

@@ -97,7 +97,7 @@ extern "C" __device__ LightSample __direct_callable__light_triangle(LightDefinit
     TriangleLightData& triangleLightData = optixLaunchParams.light.triangleLightData[light.lightIndexInType];
     
     // 三角形上の一様サンプリング
-    mymath::matrix3x4 matrixO2WPoint = optixLaunchParams.frame.objectMatrixBuffer[5]; // 5: light
+    mymath::matrix3x4 matrixO2WPoint = optixLaunchParams.frame.objectMatrixBuffer[8]; // 5: light
     const float3 V0 = triangleLightData.v0;
     const float3 V1 = triangleLightData.v1;
     const float3 V2 = triangleLightData.v2;

@@ -37,19 +37,19 @@ extern "C" __device__ float3 __direct_callable__bsdf_glass_sample(const float3 w
     // float F0 = 0.2f;
     float fresnel = schlick(wo, N, F0);
 
-    if(fabsf(prd->position.z) < 0.05f 
-        || fabsf(prd->position.x - 1.0f) < 0.04f 
-        || fabsf(prd->position.x) < 0.04f 
-        || fabsf(prd->position.y) < 0.05f)
-    {
-        if(prd->random() < fresnel){
-            prd->pdf.bxdf = fresnel;
-            return normalize(- 1.0f * wo + N * 2.f * dot(N, wo));
-        } else {
-            prd->pdf.bxdf = 1.0f - fresnel;
-            return normalize(-1.0f * wo);   
-        }
-    }
+    // if(fabsf(prd->position.z) < 0.05f 
+    //     || fabsf(prd->position.x - 1.0f) < 0.04f 
+    //     || fabsf(prd->position.x) < 0.04f 
+    //     || fabsf(prd->position.y) < 0.05f)
+    // {
+    //     if(prd->random() < fresnel){
+    //         prd->pdf.bxdf = fresnel;
+    //         return normalize(- 1.0f * wo + N * 2.f * dot(N, wo));
+    //     } else {
+    //         prd->pdf.bxdf = 1.0f - fresnel;
+    //         return normalize(-1.0f * wo);   
+    //     }
+    // }
 
 
 

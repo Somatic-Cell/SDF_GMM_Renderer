@@ -127,7 +127,7 @@ public:
 
         sceneIO::Object obj;
         LaunchParams lp = m_renderer.getLaunchParams();
-        obj.file = "watergame_torus14_N100\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
+        obj.file = "rotate_all50_N100_711\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
         Model* model = loadModel(obj);
         float3 bboxMin = model->bounds.getMin();
         float3 bboxMax = model->bounds.getMax();

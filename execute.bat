@@ -1,1 +1,1 @@
-build\bin\Release\PhotonicRT.exe "watergame_torus14_N100.json" 2>err.log
+build\bin\Release\PhotonicRT.exe "rotate_all50_N100_711.json" 2>err.log
