@@ -127,7 +127,7 @@ public:
 
         sceneIO::Object obj;
         LaunchParams lp = m_renderer.getLaunchParams();
-        obj.file = "rotate_all50_N100_711\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
+        obj.file = "real_bunny6_N64\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
         Model* model = loadModel(obj);
         float3 bboxMin = model->bounds.getMin();
         float3 bboxMax = model->bounds.getMax();

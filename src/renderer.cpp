@@ -364,7 +364,7 @@ bool Renderer::buildAccel()
         std::cerr << "ERROR: readlink() failed" << std::endl;
     }
 #endif
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/rotate_all50_N100_711/render/0_solid_particles.txt";
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/real_bunny6_N64/render/0_solid_particles.txt";
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
 
@@ -1034,13 +1034,18 @@ void Renderer::buildSBT()
                     if(modelIndex == 5){
                         rec.data.materialType = MATERIAL_TYPE_GLASS;
                         rec.data.ior = 1.33f;
-                    } 
+                    }
                     // else if(modelIndex == 6){
                     //     rec.data.ior = 1.12f;
                     //     rec.data.materialType = MATERIAL_TYPE_GLASS;
                     // } 
                     else if(modelIndex < 5){
                         rec.data.materialType = MATERIAL_TYPE_PRINCIPLED_BRDF;
+                    }
+
+                    if(modelIndex == 7){
+                        rec.data.materialType = MATERIAL_TYPE_GLASS;
+                        rec.data.ior = 1.5f;
                     }
 
                     // Texture の登録
@@ -1084,7 +1089,7 @@ void Renderer::render()
     //     m_launchParams.frame.frameID = 0;
     // }
     m_launchParamsBuffer.upload(&m_launchParams, 1);
-    m_launchParams.frame.frameID += 2;
+    m_launchParams.frame.frameID += 8;
 
     OPTIX_CHECK(optixLaunch(
         m_pipeline, m_stream,
@@ -1736,7 +1741,7 @@ void Renderer::updateScene(Model* model){
     }
 #endif
     int nowIndex = m_launchParams.frame.frameID;
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/rotate_all50_N100_711/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/real_bunny6_N64/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
     std::cout << partecleTxtDir.string() << std::endl;
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
@@ -1753,7 +1758,7 @@ void Renderer::updateScene(Model* model){
         float py = 0.71f;
         float pz = 0.5f;
         float theta = (float)nowIndex / 1000.f * M_PI;
-        m_particleReader.makeOptixTransformRowMajor3x4_RotateAroundAxisXZ(m_particles[particleInstranceID], transform, theta);
+        m_particleReader.makeOptixTransformRowMajor3x4(m_particles[particleInstranceID], transform);
 
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
@@ -1766,79 +1771,6 @@ void Renderer::updateScene(Model* model){
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
                                                             // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
         inst.traversableHandle  = m_gasHandle[m_particles[particleInstranceID].meshID];
-    }
-
-    // wall
-    std::cout << "Wall" << std::endl;
-    {
-        OptixInstance & inst = m_h_instance[2];
-        memset(&inst, 0, sizeof(OptixInstance));
-
-        
-        float transform[12] = {
-            1.02f, 0.0f, 0.0f, 0.5f, 
-            0.0f, 1.02f, 0.0f, 0.22f, 
-            0.0f, 0.0f, 1.02f, 0.5f, 
-        };
-
-        float pivotRot[12];
-        float px = 0.5f;
-        float py = 0.71f;
-        float pz = 0.5f;
-        float theta = (float)nowIndex / 1000.f * M_PI;
-
-        makePivotRotationZ_RowMajor3x4(pivotRot, theta, px, py, pz);
-
-        float out12[12];
-        mulAffine3x4(pivotRot, transform, out12);
-
-        memcpy(inst.transform, out12, sizeof(float) * 12);
-
-        inst.instanceId     = 2;
-        inst.sbtOffset      = 7 * RAY_TYPE_COUNT; // 4:wall
-        inst.visibilityMask = 255;
-        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
-                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
-                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
-                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
-                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
-        inst.traversableHandle  = m_gasHandle[7]; // 4:wall
-    }
-
-    // water
-    std::cout << "Water" << std::endl;
-    {
-        OptixInstance & inst = m_h_instance[1];
-        memset(&inst, 0, sizeof(OptixInstance));
-
-        float transform[12] = {
-            1.0f, 0.0f, 0.0f, 0.0f, 
-            0.0f, 1.0f, 0.0f, 0.22f, 
-            0.0f, 0.0f, 1.0f, 0.0f, 
-        };
-
-        float pivotRot[12];
-        float px = 0.5f;
-        float py = 0.71f;
-        float pz = 0.5f;
-        float theta = (float)nowIndex / 1000.f * M_PI;
-
-        makePivotRotationZ_RowMajor3x4(pivotRot, theta, px, py, pz);
-
-        float out12[12];
-        mulAffine3x4(pivotRot, transform, out12);
-
-        memcpy(inst.transform, out12, sizeof(float) * 12);
-
-        inst.instanceId     = 1;
-        inst.sbtOffset      = 5 * RAY_TYPE_COUNT; // 1:water
-        inst.visibilityMask = 255;
-        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
-                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
-                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
-                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
-                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
-        inst.traversableHandle  = m_gasHandle[5]; // 1:water
     }
 
     m_instance.allocAndUpload(m_h_instance);
