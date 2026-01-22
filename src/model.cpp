@@ -43,7 +43,7 @@ bool MeshLoader::load(const std::string &fileName, Model* model, const sceneIO::
     int flag = 0;
     flag |= aiProcess_Triangulate;              // 全ての面を三角形メッシュに統一
     flag |= aiProcess_PreTransformVertices;     // ノード階層を無視して，全ての頂点をワールド座標に変換
-    // flag |= aiProcess_GenSmoothNormals;         // 法線がない場合，シェーディング用の法線を生成
+    flag |= aiProcess_GenSmoothNormals;         // 法線がない場合，シェーディング用の法線を生成
     flag |= aiProcess_CalcTangentSpace;         // 接ベクトル，従法線を計算
     flag |= aiProcess_GenUVCoords;              // UV 座標がない場合，自動生成
     flag |= aiProcess_RemoveRedundantMaterials; // 未使用のマテリアルを削除して軽量化

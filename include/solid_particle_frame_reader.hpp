@@ -99,7 +99,7 @@ public:
         const float s = inst.scale;
 
         out12[0] =  R(0, 0) * s; out12[1] =  R(0, 2) * s; out12[2]  = -R(0, 1) * s; out12[3]  = inst.pos[0];
-        out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] - 1.5/25.0f;
+        out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] - 1.0/100.0f;
         out12[8] = -R(1, 0) * s; out12[9] = -R(1, 2) * s; out12[10] =  R(1, 1) * s; out12[11] = 1.0f - inst.pos[1];
 
     }

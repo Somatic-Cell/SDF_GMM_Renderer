@@ -66,6 +66,7 @@ extern "C" __device__ float3 __direct_callable__bsdf_glass_sample(const float3 w
     } else {
         float cosThetaT = sqrtf(fmaxf(1.0f - sin2ThetaT, 1e-7f));
         // prd->albedo *= (eta * eta);
+        prd->albedo *= material.baseColor;
         prd->pdf.bxdf = 1.0f - fresnel;
         return normalize(eta * (-1.0f * wo) + (eta * cosThetaI - cosThetaT) * N);   
     }

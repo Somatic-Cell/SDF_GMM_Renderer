@@ -25,3 +25,6 @@
 [submodule "ext/--recursive"]
 	path = ext/--recursive
 	url = https://github.com/richgel999/fpng.git
+[submodule "fpng"]
+	path = fpng
+	url = https://github.com/richgel999/fpng.git

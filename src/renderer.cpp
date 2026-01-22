@@ -364,12 +364,12 @@ bool Renderer::buildAccel()
         std::cerr << "ERROR: readlink() failed" << std::endl;
     }
 #endif
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/dam_star2_koban3_N25/render/0_solid_particles.txt";
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/rotate_all50_N100_711/render/0_solid_particles.txt";
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
 
     std::cout << "Building IAS..." << std::endl;
-    m_h_instance.resize(m_particles.size() + 4);
+    m_h_instance.resize(m_particles.size() + 7);
 
     std::cout << "Background" << std::endl;
     // background
@@ -377,7 +377,7 @@ bool Renderer::buildAccel()
         OptixInstance & inst = m_h_instance[0];
         memset(&inst, 0, sizeof(OptixInstance));
 
-        mymath::matrix3x4 mat = objectMatrix[3]; // 3:background
+        mymath::matrix3x4 mat = objectMatrix[6]; // 3:background
         float transform[12] = {
             mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
             mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
@@ -387,14 +387,14 @@ bool Renderer::buildAccel()
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
         inst.instanceId     = 0;
-        inst.sbtOffset      = 3 * RAY_TYPE_COUNT; // 0:background
+        inst.sbtOffset      = 6 * RAY_TYPE_COUNT; // 0:background
         inst.visibilityMask = 255;
         inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
                                                             // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
                                                             // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
-        inst.traversableHandle  = m_gasHandle[3]; 
+        inst.traversableHandle  = m_gasHandle[6]; 
     }
     
 
@@ -404,7 +404,7 @@ bool Renderer::buildAccel()
         OptixInstance & inst = m_h_instance[1];
         memset(&inst, 0, sizeof(OptixInstance));
 
-        mymath::matrix3x4 mat = objectMatrix[2]; // water
+        mymath::matrix3x4 mat = objectMatrix[5]; // water
         float transform[12] = {
             mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
             mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
@@ -414,14 +414,14 @@ bool Renderer::buildAccel()
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
         inst.instanceId     = 1;
-        inst.sbtOffset      = 2 * RAY_TYPE_COUNT; // 1:water
+        inst.sbtOffset      = 5 * RAY_TYPE_COUNT; // 1:water
         inst.visibilityMask = 255;
         inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
                                                             // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
                                                             // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
-        inst.traversableHandle  = m_gasHandle[2]; // 1:water
+        inst.traversableHandle  = m_gasHandle[5]; // 1:water
     }
 
     // wall
@@ -430,7 +430,7 @@ bool Renderer::buildAccel()
         OptixInstance & inst = m_h_instance[2];
         memset(&inst, 0, sizeof(OptixInstance));
 
-        mymath::matrix3x4 mat = objectMatrix[4]; // background
+        mymath::matrix3x4 mat = objectMatrix[7]; // background
         float transform[12] = {
             mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
             mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
@@ -440,14 +440,14 @@ bool Renderer::buildAccel()
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
         inst.instanceId     = 2;
-        inst.sbtOffset      = 4 * RAY_TYPE_COUNT; // 4:wall
+        inst.sbtOffset      = 7 * RAY_TYPE_COUNT; // 4:wall
         inst.visibilityMask = 255;
         inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
                                                             // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
                                                             // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
                                                             // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
-        inst.traversableHandle  = m_gasHandle[4]; // 4:wall
+        inst.traversableHandle  = m_gasHandle[7]; // 4:wall
     }
     // light
     {
@@ -474,9 +474,34 @@ bool Renderer::buildAccel()
         inst.traversableHandle  = m_gasHandle[5]; // 5:light
     }
 
+    // pins
+    {
+        OptixInstance & inst = m_h_instance[4];
+        memset(&inst, 0, sizeof(OptixInstance));
+
+        mymath::matrix3x4 mat = objectMatrix[6]; // 6:light
+        float transform[12] = {
+            mat.row0.x, mat.row0.y, mat.row0.z, mat.row0.w, 
+            mat.row1.x, mat.row1.y, mat.row1.z, mat.row1.w, 
+            mat.row2.x, mat.row2.y, mat.row2.z, mat.row2.w, 
+        };
+
+        memcpy(inst.transform, transform, sizeof(float) * 12);
+
+        inst.instanceId     = 4;
+        inst.sbtOffset      = 6 * RAY_TYPE_COUNT; // 5:light
+        inst.visibilityMask = 255;
+        inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
+                                                            // OPTIX_INSTNCE_FLAG_NONE:                 デフォルト
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_TRANSFORM:    transform 行列を無視 (ワールド座標に直置き)
+                                                            // OPTIX_INSTNCE_FLAG_DISABLE_ANYHIT:       AnyHit シェーダを無視
+                                                            // OPTIX_INSTNCE_FLAG_ENFORCE_ANYHIT:       AnyHit シェーダを必ず呼ぶ
+        inst.traversableHandle  = m_gasHandle[6]; // 5:light
+    }
+
     // 4--: particles
     for(unsigned int particleInstranceID = 0; particleInstranceID < m_particles.size(); particleInstranceID++){
-        OptixInstance & inst = m_h_instance[particleInstranceID+4];
+        OptixInstance & inst = m_h_instance[particleInstranceID+5];
         memset(&inst, 0, sizeof(OptixInstance));
 
         float transform[12];
@@ -484,7 +509,7 @@ bool Renderer::buildAccel()
 
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
-        inst.instanceId     = particleInstranceID+4;
+        inst.instanceId     = particleInstranceID+5;
         inst.sbtOffset      = (m_particles[particleInstranceID].meshID) * RAY_TYPE_COUNT;
         inst.visibilityMask = 255;
         inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．
@@ -1033,6 +1058,10 @@ void Renderer::buildSBT()
 
                     if(modelIndex == 2){
                         rec.data.materialType = MATERIAL_TYPE_GLASS;
+                        rec.data.ior = 1.33f;
+                    } else if(modelIndex == 6){
+                        rec.data.ior = 1.12f;
+                        rec.data.materialType = MATERIAL_TYPE_GLASS;
                     } else if(modelIndex < 2){
                         rec.data.materialType = MATERIAL_TYPE_PRINCIPLED_BRDF;
                     }
@@ -1078,7 +1107,7 @@ void Renderer::render()
     //     m_launchParams.frame.frameID = 0;
     // }
     m_launchParamsBuffer.upload(&m_launchParams, 1);
-    m_launchParams.frame.frameID += 2;
+    m_launchParams.frame.frameID ++;
 
     OPTIX_CHECK(optixLaunch(
         m_pipeline, m_stream,
@@ -1730,7 +1759,7 @@ void Renderer::updateScene(Model* model){
     }
 #endif
     int nowIndex = m_launchParams.frame.frameID;
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/dam_star2_koban3_N25/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/rotate_all50_N100_711/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
     std::cout << partecleTxtDir.string() << std::endl;
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
@@ -1739,7 +1768,7 @@ void Renderer::updateScene(Model* model){
 
     // 4--: particles
     for(unsigned int particleInstranceID = 0; particleInstranceID < m_particles.size(); particleInstranceID++){
-        OptixInstance & inst = m_h_instance[particleInstranceID+4];
+        OptixInstance & inst = m_h_instance[particleInstranceID+5];
         memset(&inst, 0, sizeof(OptixInstance));
 
         float transform[12];
@@ -1747,7 +1776,7 @@ void Renderer::updateScene(Model* model){
 
         memcpy(inst.transform, transform, sizeof(float) * 12);
 
-        inst.instanceId     = particleInstranceID+4;
+        inst.instanceId     = particleInstranceID+5;
         inst.sbtOffset      = (m_particles[particleInstranceID].meshID) * RAY_TYPE_COUNT;
         inst.visibilityMask = 255;
         inst.flags          = OPTIX_INSTANCE_FLAG_NONE;     // インスタンスの挙動を指定．

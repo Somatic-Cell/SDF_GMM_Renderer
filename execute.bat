@@ -1,1 +1,1 @@
-build\bin\Release\PhotonicRT.exe "dam_star2_koban3_N25.json" 2>err.log
+build\bin\Release\PhotonicRT.exe "watergame_torus14_N100.json" 2>err.log

@@ -133,14 +133,14 @@ extern "C" __global__ void __closesthit__radiance()
         albedo = make_float3(fromTexture);
     }
 
-    float4 arm = make_float4(0.0f, 0.1f, 1.0f, 0.0f);
+    float4 arm = make_float4(0.0f, 0.1f, 0.0f, 0.0f);
     
     if(sbtData.rmTexture.hasTexture){
         arm = tex2D<float4>(sbtData.rmTexture.texture, diffuseTextureCoordinate.x, 1.0f - diffuseTextureCoordinate.y);
     }
 
     IntersectedData matData;
-    matData.ior = 1.33f; // glass
+    matData.ior = sbtData.ior; // glass
     matData.metallic = arm.z;
     matData.roughness = arm.y;
     matData.baseColor = albedo;
