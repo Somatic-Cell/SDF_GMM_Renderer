@@ -364,7 +364,7 @@ bool Renderer::buildAccel()
         std::cerr << "ERROR: readlink() failed" << std::endl;
     }
 #endif
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/real_bunny6_N64/render/0_solid_particles.txt";
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/vortex_star15_heart15_N100/render/52_solid_particles.txt";
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
 
@@ -1043,10 +1043,10 @@ void Renderer::buildSBT()
                         rec.data.materialType = MATERIAL_TYPE_PRINCIPLED_BRDF;
                     }
 
-                    if(modelIndex == 7){
-                        rec.data.materialType = MATERIAL_TYPE_GLASS;
-                        rec.data.ior = 1.5f;
-                    }
+                    // if(modelIndex == 7){
+                    //     rec.data.materialType = MATERIAL_TYPE_GLASS;
+                    //     rec.data.ior = 1.5f;
+                    // }
 
                     // Texture の登録
                     if(material->diffuseTextureID >= 0){
@@ -1089,7 +1089,7 @@ void Renderer::render()
     //     m_launchParams.frame.frameID = 0;
     // }
     m_launchParamsBuffer.upload(&m_launchParams, 1);
-    m_launchParams.frame.frameID += 8;
+    m_launchParams.frame.frameID += 1;
 
     OPTIX_CHECK(optixLaunch(
         m_pipeline, m_stream,
@@ -1741,7 +1741,7 @@ void Renderer::updateScene(Model* model){
     }
 #endif
     int nowIndex = m_launchParams.frame.frameID;
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/real_bunny6_N64/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/vortex_star15_heart15_N100/render/"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
     std::cout << partecleTxtDir.string() << std::endl;
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);

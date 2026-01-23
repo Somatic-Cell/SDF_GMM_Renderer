@@ -94,10 +94,10 @@ extern "C" __global__ void __raygen__renderFrame()
     float4 rgba = make_float4(pixelColor, 1.0f);
 
     
-    // if (optixLaunchParams.frame.frameID > 0){
-    //     float4 rgba_now = optixLaunchParams.frame.colorBuffer[fbIndex];
-    //     rgba = rgba_now + (rgba - rgba_now) / (optixLaunchParams.frame.frameID + 1.0f); 
-    // }
+    if (optixLaunchParams.frame.frameID > 0){
+        float4 rgba_now = optixLaunchParams.frame.colorBuffer[fbIndex];
+        rgba = rgba_now + (rgba - rgba_now) / (optixLaunchParams.frame.frameID + 1.0f); 
+    }
     
     optixLaunchParams.frame.colorBuffer[fbIndex] = rgba;
     optixLaunchParams.frame.albedoBuffer[fbIndex] = make_float4(pixelAlbedo, 1.0f);

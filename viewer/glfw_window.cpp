@@ -169,12 +169,12 @@ void GLFWCameraWindow::run()
         ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
     
         glfwSwapBuffers(m_handle);
-        std::string fileName;
-        std::stringstream ss;
-        ss << std::setfill('0') << std::setw(3) << std::right << std::to_string(counter);
-        ss >> fileName;
-        save(fileName);
-        ++counter;
+        // std::string fileName;
+        // std::stringstream ss;
+        // ss << std::setfill('0') << std::setw(3) << std::right << std::to_string(counter);
+        // ss >> fileName;
+        // save(fileName);
+        // ++counter;
     }
 }
 

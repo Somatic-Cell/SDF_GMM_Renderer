@@ -214,7 +214,7 @@ protected:
     
     CUDABuffer  m_envMapBuffer;
     int m_numDevices            {0};
-    bool m_isAccumulate         {false};
+    bool m_isAccumulate         {true};
 
     std::vector<std::string> m_optixModuleFileNames;    // optix 用の .ptx .optixir のコード一覧
     std::vector<std::string> m_cudaModuleFileNames;     // cuda 用の.ptx のコード一覧

@@ -1,1 +1,1 @@
-build\bin\Release\PhotonicRT.exe "real_bunny6_N64copy.json" 2>err.log
+build\bin\Release\PhotonicRT.exe "vortex_star15_heart15_N100.json" 2>err.log
