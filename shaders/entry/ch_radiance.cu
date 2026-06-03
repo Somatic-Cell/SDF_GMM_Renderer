@@ -97,8 +97,6 @@ extern "C" __global__ void __closesthit__radiance()
             +            u * T2
             +            v * T3;
         tan = make_float4(optixTransformNormalFromObjectToWorldSpace(make_float3(tan)), tan.w);
-
-        // tan = make_float4(mymath::mul3x3(matrixO2WNormal, make_float3(tan)), tan.w);
     }
 
     
