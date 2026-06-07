@@ -67,6 +67,7 @@ public:
 
         m_renderer.setCamera(camera);
         m_renderer.setEnvMap(scene.environment.file);
+        m_renderer.setSPP(scene.integrator.spp);
 
 
         // 結果を描画するテクスチャの作成

@@ -229,7 +229,34 @@ JSON 形式のファイルを使用して，使用したいメッシュやカメ
 
 ### ソースコードを一部変更する
 
+#### 参照するフォルダのパスの変更（毎回必ず変更）
+* ``` include/application.hpp ```: 1か所 (130 行目付近)
+* ``` src/renderer.cpp ```: 2か所 (367行目, 1,749 行目付近)
 
+#### マテリアルの変更（シーンのカテゴリごとに変更）
+* ``` src/render.cpp ```: 1,018 行目付近．Diffuse から Disney Principled BRDF などに変更したいときに変更．シーンファイルに列挙した順に modelIndex が振られている.
+
+* ``` shaders/entry/ch_radiance.cu ```: 110 行目付近．マテリアルの色味を変えたいときに変更．パーティクルを多数インスタンスするときは，ID をランダムな RGB 値にマッピングする関数が用意してある．
+
+#### 光源の強さの変更（シーンにのカテゴリごとに変更）
+* ``` square_light.mtl ```. 緑と紫のシーンでは 4.0, ダムなどのシーンでは 2,000 位に設定するとちょうどいい
+
+#### パーティクルの位置の微調整（シミュレーションの格子数が変わるたびに変更）
+シミュレーション結果のパーティクルの位置が，格子の解像度によって微妙に床から浮いてしまう現象を微調整する． ``` 1/(格子数) ``` だけ ``` inst.pos[2] ``` を下げる．
+* ``` include/solid_particle_frame_reader.hpp ```:
+　
+    * ```static void makeOptixTransformRowMajor3x4``` (142 行目付近):
+
+#### レンダリングするフレームの指定（偶数フレームのみなど，場合によって変更）
+* ``` src/renderer.cpp ```: (1,095 行目付近)
+    ```
+    m_launchParams.frame.frameID += 1;
+    ```
+    を
+    ```
+    m_launchParams.frame.frameID += 2;
+    ```
+    とすれば偶数フレームのみなどに変更可能
 ### ビルドする
 
 ビルドセクションを参照してビルドする．毎回クリーンビルドする必要はない．
@@ -251,11 +278,6 @@ build\bin\Release\SDFGMMRT.exe "comp_going1_bunny_mesh_N50.json" 2>err.log
 
 ### 実行する
 
-描画したメッシュが，レンダリング後半で壁にめり込む場合がある．不整合がないか，``` 4spp ``` 程度で実行してみる．
-
-
-## 実行後にデータをまとめる（デノイズ・動画作成）
-
 プロジェクトのルートディレクトリで
 ```
 build\bin\Release\SDFGMMRT.exe "comp_going1_bunny_mesh_N50.json" 2>err.log
@@ -265,6 +287,32 @@ build\bin\Release\SDFGMMRT.exe "comp_going1_bunny_mesh_N50.json" 2>err.log
 .\execute.bat 
 ``` 
 を実行．
+
+
+## 実行後にデータをまとめる（デノイズ・動画作成）
+実行後のデータを集約し，デノイズする．
+ルートディレクトリで
+```
+python .\process_output_sequence_oidn_pfm_windows.py `
+--input-dir .\output `
+--denoiser "C:\Tools\oidn-2.5.0.x64.windows\bin\oidnDenoise.exe" `
+--srgb `
+--overwrite `
+--video-name "comp_going1_bunny_mesh_N50_v2.mp4" ` 
+--zip-name "comp_going1_bunny_mesh_N50_result_v2.zip"
+```
+などと実行する．```--input-dir``` 下に zip ファイルが生成される
+
+オプション：
+* ```--input-dir```: 連番画像が入っているフォルダ
+* ```--denoiser```: [Intel Open Image Denoise](https://www.openimagedenoise.org/) をダウンロードし，exe ファイルまでのパスを指定
+* ```--srgb```: 色空間
+* ```--overwrite```: 既に zip ファイルが存在する場合でも上書きする
+* ```--video-name```: ビデオ名
+* ```--zip-name```: zip ファイル名
+* ```--keep-folders ```: zip 作成後も raw/ と denoised/ を残す
+
+その他は help で確認
 
 ## レンダラの機能
 Coming soon... 

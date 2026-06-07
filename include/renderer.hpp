@@ -110,6 +110,7 @@ public:
     const LaunchParams  getLaunchParams() const;
     const CUDABuffer&   getFinalColorBuffer() const;
     void updateScene(Model* model);
+    void setSPP(int spp);
 
     // Tonemap 用
     void setWhite(const float white);

@@ -151,7 +151,7 @@
   "integrator": {
     "type": "Path Tracing",
     "applySpectralRendering": false,
-    "spp": 118,
+    "spp": 512,
     "maxBounce": 8,
     "isAccumulate": true
   }
