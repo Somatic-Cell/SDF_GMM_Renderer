@@ -1,0 +1,184 @@
+{
+  "objects": [
+    {
+      "name": "Background",
+      "type": "mesh",
+      "file": "background_paper.obj",
+      "TRS": {
+        "transform": [
+          -0,
+          -0.011,
+          0.5
+        ],
+        "rotation": [
+          0.0,
+          -0.7071,
+          0.0,
+          0.7071
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Wall",
+      "type": "mesh",
+      "file": "wall_3.obj",
+      "TRS": {
+        "transform": [
+          0.5,
+          -0.01,
+          0.4
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.03,
+          1.01,
+          1.01
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Light",
+      "type": "mesh",
+      "file": "square_light.obj",
+      "TRS": {
+        "transform": [
+          -0.8,
+          1.25,
+          5.0
+        ],
+        "rotation": [
+          0.353553, 0.353553, 0.146447, 0.853553
+        ],
+        "scale": [
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Water",
+      "type": "mesh",
+      "file": "comp_going2_dam_gmm_banny15_heart15\\render\\0_scene.obj",
+      "TRS": {
+        "transform": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Bunny",
+      "type": "mesh",
+      "file": "comp_going2_dam_gmm_banny15_heart15\\render\\_objects\\0.obj",
+      "TRS": {
+        "transform": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Heart",
+      "type": "mesh",
+      "file": "comp_going2_dam_gmm_banny15_heart15\\render\\_objects\\1.obj",
+      "TRS": {
+        "transform": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    }
+  ],
+ "camera": {
+    "from": [
+      1.3,
+      0.482,
+      3.8
+    ],
+    "at": [
+      0.5,
+      0.482,
+      0.5
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "focalLength": 20.0,
+    "fValue": 2.799999952316284,
+    "fov": 20.0,
+    "sensitivity": 1.0,
+    "pintDist": 1.0
+  },
+  "environment": {
+    "file": "studio_small_03_4k.hdr"
+  },
+  "integrator": {
+    "type": "Path Tracing",
+    "applySpectralRendering": false,
+    "spp": 1,
+    "maxBounce": 8,
+    "isAccumulate": true
+  }
+}
+

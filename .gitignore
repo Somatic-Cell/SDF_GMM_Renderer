@@ -3,10 +3,9 @@
 !/model/CornellBox
 /envmap/*
 !/envmap/symmetrical_garden_4k.hdr
-/scene/*
-!/scene/sampleScene.json
 /result.log
 /err.log
 /imgui.ini
 *.jpg
-/output
+/output/*
+/comp*/

@@ -1,6 +1,6 @@
-# PhotonicRT v.0.1
+# SDFGMMRenderer v.0.1
 
-フォトニック結晶をレイトレーシングするためのレンダラ．\
+某研究結果をレンダリングするためのレンダラ．\
 NVIDIA CUDA / OptiX を使用．
 
 - [依存関係](#依存関係)
@@ -17,44 +17,29 @@ NVIDIA CUDA / OptiX を使用．
 ### 要事前インストール
 #### GPU レンダリング用 SDK
 - [NVIDIA CUDA](https://developer.nvidia.com/cuda-downloads) ( >= v.12.0)
-- [NVIDIA OptiX](https://developer.nvidia.com/designworks/optix/download) (v.8.0.0 or v9.0.0)
-#### OpenVDB ビルド用
-- [tbb](https://github.com/uxlfoundation/oneTBB/releases?utm_source=chatgpt.com)
-- [zlib](https://zlib.net/?utm_source=chatgpt.com)
-- [openEXR](https://github.com/AcademySoftwareFoundation/openexr?utm_source=chatgpt.com)
-- [Blosc](https://github.com/Blosc/c-blosc?utm_source=chatgpt.com)
-- [Boost](https://www.boost.org/?utm_source=chatgpt.com)
-
-vcpkg を使用できる場合は，PowerShell から
-```
-$ vcpkg install tbb blosc openexr zlib boost-iostreams 
-```
-とインストールしてしまうのが一番手っ取り早い．\
-または，上記のリンクから逐一インストールする．
+- [NVIDIA OptiX](https://developer.nvidia.com/designworks/optix/download) (デフォルトでは 9.1.0)
 
 ### その他使用する外部ライブラリ　（個別にダウンロードする必要なし．ライセンス管理のために列挙）
 - [Open Asset Import Library (assimp)](https://github.com/assimp/assimp?tab=readme-ov-file#open-asset-import-library-assimp) ：アセットの読み込み
 - [DirectXTex texture processing library](https://github.com/microsoft/DirectXTex)：``` .DDS ``` ファイルの読み込み
+- [fpng](https://github.com/richgel999/fpng)：爆速で .png ファイルを生成する
 - [GLFW](https://github.com/glfw/glfw)：ウィンドウの描画
 - [Dear ImGui](https://github.com/ocornut/imgui)：GUI の描画
 - [stb](https://github.com/nothings/stb)：テクスチャの読み込み，出力画像の保存
 - [JSON for Modern C++](https://github.com/nlohmann/json?tab=readme-ov-file)：シーンファイルの読み書き
-- [OpenVDB](https://github.com/AcademySoftwareFoundation/openvdb)：ボリュームデータの読み込み
-- NanoVDB (OpenVDB に内包)：GPU 上でのボリュームデータのサンプリング
 
 ## フォルダやファイルの説明
 
 このプロジェクトは，以下のように構成されている：
 ```
 .
-├── data        # スペクトラルレンダリングに関係する関数データなどの置き場
 ├── envmap      # 環境マップを入れる (.hdr 形式)
 ├── ext         # 外部ライブラリの置き場
 ├── include     # ヘッダファイルの置き場
 ├── kernels     # OptiX 外で使用する CUDA ファイルの置き場
-├── model       # 使用したいメッシュの置き場 (使用できる拡張子：".fbx", ".obj", ".gltf", ".glb", ".ply")
+├── model       # 使用したいメッシュの置き場 (使用できる拡張子：".fbx", ".obj", ".gltf", ".glb", ".ply")，シミュレーション結果の置き場
 ├── output      # レンダリングした結果を保存した際の出力先
-├── scene       # シーンファイルの置き場
+├── scene       # シーンファイル（後述）の置き場
 ├── shaders     # OptiX に関係する CUDA ファイルの置き場
     ├── callable    # Direct callable 関数が実装されたプログラムの置き場
     ├── device      # シェーダ全体で使用する便利ツールの置き場       
@@ -126,7 +111,7 @@ $ build.bat
 #### バージョン指定
 <details><summary> GPU のアーキテクチャ 指定</summary>
 
-``` CMakeLists.txt ``` では，[CUDA GPU compute capability](https://developer.nvidia.com/cuda-gpus) を ``` CUDA_CC ``` で指定する．
+``` CMakeLists.txt ``` では，[CUDA GPU compute capability](https://developer.nvidia.com/cuda-gpus) を ``` CMAKE_CUDA_ARCHITECTURES ``` で指定する．
 実行する環境に合わせて，適宜変更すること．
 
 Compute capability の例
@@ -135,6 +120,7 @@ Compute capability の例
 | --- | --- | :---: |
 | Ampere | GeForce RTX 30系統 | 86 |
 | Ada | GeForce RTX 40系統 | 89 |
+| Blackwell | GeForce RTX 50系統 | 120 |
 
 </details>
 
@@ -158,26 +144,48 @@ $ cmake --build . --config Debug --verbose
 
 OptiX のバージョンを変更したい場合は，プロジェクトのルートディレクトリにある 
  ```CMakeLists.txt``` を編集する．
-デフォルトでは OptiX 9.0.0 で動作するようになっているが，変更したい場合は，
+デフォルトでは OptiX 9.1.0 で動作するようになっているが，変更したい場合は，
 
 ```
-find_package(OptiX9)
+find_package(OptiX91)
 
 if(OptiX9_FOUND)
     set(OPTIX_INCLUDE_DIR "${OPTIX9_INCLUDE_DIR}")
 else()
-    message(FATAL_ERROR "OptiX SDK 9.0.0 not found.")
+    message(FATAL_ERROR "OptiX SDK 9.1.0 not found.")
 endif()
 ```
-あたりの，OptiX9 を OptiX(バージョン) に変更すればよい．
+あたりの，OptiX91 を OptiX(バージョン) に変更すればよい．
 対応しているバージョンは，```utils/cmake/FindOptiX*.cmake``` というファイルがあるもの．
+
+対応していないバージョンに対応させたい場合は，```utils/cmake/FindOptiX(対応させたいver).cmake``` を自作する．
+といっても，既存の .cmake ファイルをコピペして名前を変更し，
+
+```
+if (WIN32) 
+    # Windows 環境だったら． 
+    # WIN32 は Windows 環境だったら True を返すことに注意．　
+    # 32bit OS でも 64bit OS でも True を返す 
+    set(OPTIX8_INSTALL_DIR "C:/ProgramData/NVIDIA Corporation/OptiX SDK 9.1.0" CACHE PATH "Path to OptiX installed location.")
+endif()
+```
+で指定されているディレクトリを別のものに変更するだけ
+
 </details>
 
 
-### 3. その他
+### 3. ビルドに失敗したら
+外部ライブラリのビルドに失敗することがある (``` fpng ```, ``` json ``` など？)．
+
+この場合，当該ライブラリの ``` cmake_minimum_required() ``` を
+```
+cmake_minimum_required(VERSION 3.5)
+```
+に書き換えてしまうことで，ビルドを通すことができる．
 
 ## 実行
 
+### シーンファイルを記述する
 <details><summary>シーンファイルについて</summary>
 
 JSON 形式のファイルを使用して，使用したいメッシュやカメラのパラメータ，レンダラの設定などをまとめて指定する．\
@@ -207,9 +215,62 @@ JSON 形式のファイルを使用して，使用したいメッシュやカメ
 
 </details>
 
+* ``` dam ``` 系など，既にカメラパラメータを調整済みのシーンファイルがあるため，類似したシーンでは類似したシーンを参照すると調整が楽．
+* 新規シーンのカメラパラメータなどを探索したい場合は，低 spp に設定したうえでレンダラを実行し，理想のカメラ位置を探索する．GUI 上にカメラパラメータが表示されるのでそれを参考にシーンファイルを書き換える．
+* 探索中，カメラ姿勢の変化が入力に対して敏感すぎると感じる場合は，キーボード上で ``` + / - ``` を連打することで sensitivity を調整できる
+
+### シミュレーションデータを置く
+レンダリングしたいシミュレーションデータ一式を ``` model ``` 下にそのまま置く．例えば，``` model/comp_going1_bunny_mesh_N50 ```
+
+
+### レンダリングに必要な各種データを置く
+環境マップのための HDR ファイルはデータが大きいため，Git で追跡していない．
+[Poly Haven](https://polyhaven.com/hdris) でダウンロードして，```envmap``` 下に置く．
+
+### ソースコードを一部変更する
+
+
+### ビルドする
+
+ビルドセクションを参照してビルドする．毎回クリーンビルドする必要はない．
+
+### 低サンプル数で実行して様子を見る
+
+描画したメッシュが，レンダリング後半で壁にめり込む場合がある．不整合がないか，``` 4spp ``` 程度で実行してみる．
+例えば，
+```
+build\bin\Release\SDFGMMRT.exe "comp_going1_bunny_mesh_N50.json" 2>err.log
+```
+とすると，log を ``` err.log ``` に保存しつつ実行可能．
+
+実行用の ``` execute.bat ``` も用意しているので，単にプロジェクトのルートディレクトリで
+``` 
+.\execute.bat 
+``` 
+を実行してもいい．
+
+### 実行する
+
+描画したメッシュが，レンダリング後半で壁にめり込む場合がある．不整合がないか，``` 4spp ``` 程度で実行してみる．
+
+
+## 実行後にデータをまとめる（デノイズ・動画作成）
+
+プロジェクトのルートディレクトリで
+```
+build\bin\Release\SDFGMMRT.exe "comp_going1_bunny_mesh_N50.json" 2>err.log
+```
+または
+``` 
+.\execute.bat 
+``` 
+を実行．
 
 ## レンダラの機能
+Coming soon... 
 
 ## 実験開発用メモ
+Coming soon... 
 
 ### デバッグ
+Coming soon... 

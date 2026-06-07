@@ -5,8 +5,8 @@
 
 ### JP: CMake のバージョン
 cmake_minimum_required(VERSION 3.18)
-
-set(PROJECT_NAME "PhotonicRT")
+set(CMAKE_CUDA_ARCHITECTURES 120)
+set(PROJECT_NAME "SDFGMMRT")
 set(TARGET_NAME ${PROJECT_NAME})
 
 project(${PROJECT_NAME}
@@ -31,12 +31,12 @@ set(
     "${utils_dir}/cmake")
 
 find_package(CUDAToolkit 12.0 REQUIRED) 
-find_package(OptiX9)
+find_package(OptiX91)
 
 if(OptiX9_FOUND)
     set(OPTIX_INCLUDE_DIR "${OPTIX9_INCLUDE_DIR}")
 else()
-    message(FATAL_ERROR "OptiX SDK 9.0.0 not found.")
+    message(FATAL_ERROR "OptiX SDK 9.1.0 not found.")
 endif()
 
 include(${utils_dir}/cmake/BuildSettings.cmake)
@@ -128,18 +128,6 @@ add_subdirectory(${EXT_DIR}/json)
 # fpng
 add_subdirectory(${EXT_DIR}/fpng)
 
-# openvdb
-# include(${utils_dir}/cmake/BuildVDB.cmake)
-#add_library(nvdb_runtime STATIC .cu)
-#target_link_libraries(nvdb_runtime PRIVATE nanovdb_headers)
-
-# if(OPENVDB_AVAILABLE OR WITH_OPENVDB)
-#     #add_library(vdb_loader STATIC src/vdbLoader.cpp)
-#     if(DEFINED OPENVDB_TARGET)
-#         #target_link_libraries(vdb_loader PRIVATE ${OPENVDB_TARGET})
-#     endif()
-# endif()
-
 ### viewer
 add_subdirectory(viewer)
 target_link_libraries(viewer
@@ -158,7 +146,7 @@ target_link_libraries(viewer
 
 set(CPP_VER_CUDA c++17)
 set(USE_OPTIX_IR FALSE)
-set(CUDA_CC 86)
+set(CUDA_CC ${CMAKE_CUDA_ARCHITECTURES})
 
 
 ### コンパイルするファイルを列挙
@@ -185,6 +173,8 @@ set(
     ${PROJECT_SOURCE_DIR}/shaders/callable/light_sample.cu
     ${PROJECT_SOURCE_DIR}/shaders/callable/lens.cu
 )
+
+
 
 if(OptiX9_FOUND)
     set(USE_OPTIX_IR TRUE)

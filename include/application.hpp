@@ -125,16 +125,17 @@ public:
             m_cameraFrame.setIsTransformDirty(false);
         }
 
-        // sceneIO::Object obj;
-        // LaunchParams lp = m_renderer.getLaunchParams();
-        // obj.file = "vortex_star15_heart15_N100\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
-        // Model* model = loadModel(obj);
-        // float3 bboxMin = model->bounds.getMin();
-        // float3 bboxMax = model->bounds.getMax();
+        sceneIO::Object obj;
+        LaunchParams lp = m_renderer.getLaunchParams();
+        obj.file = "comp_going1_bunny_mesh_n50\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
+        Model* model = loadModel(obj);
+        float3 bboxMin = model->bounds.getMin();
+        float3 bboxMax = model->bounds.getMax();
 
-        // std::cout << "BBox min: x: " << bboxMin.x << ", y: " << bboxMin.y << ", z: " << bboxMin.z << std::endl;
-        // std::cout << "BBox max: x: " << bboxMax.x << ", y: " << bboxMax.y << ", z: " << bboxMax.z << std::endl;
-        // m_renderer.updateScene(model);
+        std::cout << "BBox min: x: " << bboxMin.x << ", y: " << bboxMin.y << ", z: " << bboxMin.z << std::endl;
+        std::cout << "BBox max: x: " << bboxMax.x << ", y: " << bboxMax.y << ", z: " << bboxMax.z << std::endl;
+        m_renderer.updateScene(model);
+        
         m_renderer.render();
 
     }

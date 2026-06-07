@@ -110,15 +110,17 @@ extern "C" __global__ void __closesthit__radiance()
     // Albedo の計算
     float3 albedo = sbtData.color;
     const int instID = optixGetInstanceId();
-    if(instID == 1){ // water
+    if(instID == 3){ // water
         albedo = make_float3(1.0f);
     } 
-    if(instID == 2){
-        albedo = make_float3(0.445f, 0.776f, 0.934f);
+    if(instID == 1){
+        albedo = make_float3(15.0f, 48.0f, 24.0f) / 255.f;
+        // albedo = make_float3(97.0f, 240.0f, 250.0f) / 255.f;
     }
     float density[6] = {0.99f, 1.00f, 1.05f, 1.15f, 1.25f, 1.5f};
-    if(instID >= 7){
-        albedo = instanceIdToRGB(instID * 3);
+    if(instID > 3){
+        // albedo = instanceIdToRGB(instID * 3);
+        albedo = make_float3(0.4549019f, 0.20784f, 0.9490196f);
         // float ratio = density[instID - 4] / density[5];
         // albedo = make_float3(0.87f, 0.152f, 0.157f) * ratio + make_float3(0.9f) * (1.0f - ratio);
         // albedo = make_float3(0.01f) * ratio + make_float3(0.9f) * (1.0f - ratio);
@@ -131,7 +133,7 @@ extern "C" __global__ void __closesthit__radiance()
         albedo = make_float3(fromTexture);
     }
 
-    float4 arm = make_float4(0.0f, 0.1f, 1.0f, 0.0f);
+    float4 arm = make_float4(0.0f, 0.01f, 0.0f, 0.0f);
     
     if(sbtData.rmTexture.hasTexture){
         arm = tex2D<float4>(sbtData.rmTexture.texture, diffuseTextureCoordinate.x, 1.0f - diffuseTextureCoordinate.y);

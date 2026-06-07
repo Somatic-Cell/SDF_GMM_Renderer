@@ -1,0 +1,158 @@
+{
+  "objects": [
+    {
+      "name": "Background",
+      "type": "mesh",
+      "file": "background_paper.obj",
+      "TRS": {
+        "transform": [
+          -0,
+          -0.011,
+          0.5
+        ],
+        "rotation": [
+          0.0,
+          -0.7071,
+          0.0,
+          0.7071
+        ],
+        "scale": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Wall",
+      "type": "mesh",
+      "file": "wall_5.obj",
+      "TRS": {
+        "transform": [
+          0.5,
+          -0.01,
+          0.4
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.03,
+          1.01,
+          1.01
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Light",
+      "type": "mesh",
+      "file": "square_light.obj",
+      "TRS": {
+        "transform": [
+          -0.8,
+          1.25,
+          5.0
+        ],
+        "rotation": [
+          0.353553, 0.353553, 0.146447, 0.853553
+        ],
+        "scale": [
+          0.25,
+          0.25,
+          0.25
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Water",
+      "type": "mesh",
+      "file": "comp_going1_propeller_mesh_N50\\render\\0_scene.obj",
+      "TRS": {
+        "transform": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    },
+    {
+      "name": "Propeller",
+      "type": "mesh",
+      "file": "comp_going1_propeller_mesh_N50\\render\\_objects\\0.obj",
+      "TRS": {
+        "transform": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "placeCenterBBoxAtOrigin": false,
+      "placeOnGround": false
+    }
+  ],
+  "camera": {
+    "from": [
+      0.502,
+      0.09,
+      2.09
+    ],
+    "at": [
+      0.527,
+      0.4797,
+      -1.7933
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "focalLength": 50.0,
+    "fValue": 2.799999952316284,
+    "fov": 50.0,
+    "sensitivity": 1.0,
+    "pintDist": 1.0
+  },
+  "environment": {
+    "file": "studio_small_03_4k.hdr"
+  },
+  "integrator": {
+    "type": "Path Tracing",
+    "applySpectralRendering": false,
+    "spp": 118,
+    "maxBounce": 8,
+    "isAccumulate": true
+  }
+}

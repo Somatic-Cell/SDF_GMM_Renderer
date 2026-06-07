@@ -1,0 +1,61 @@
+{
+  "objects": [
+    {
+      "name": "Cornell Box",
+      "type": "mesh",
+      "file": "CornellBox\\CornellBox-Original.obj",
+      "TRS": {
+        "transform": [
+          0.0,
+          0.0,
+          0.0
+        ],
+        "rotation": [
+          0.0,
+          0.0,
+          0.0,
+          1.0
+        ],
+        "scale": [
+          1.0,
+          1.0,
+          1.0
+        ]
+      },
+      "placeCenterBBoxAtOrigin": true,
+      "placeOnGround": true
+    }
+  ],
+  "camera": {
+    "from": [
+      0.0,
+      0.0,
+      3.0
+    ],
+    "at": [
+      0.0,
+      0.0,
+      -1.0
+    ],
+    "up": [
+      0.0,
+      1.0,
+      0.0
+    ],
+    "focalLength": 50.0,
+    "fValue": 2.799999952316284,
+    "fov": 50.0,
+    "sensitivity": 1.0,
+    "pintDist": 1.0
+  },
+  "environment": {
+    "file": "symmetrical_garden_4k.hdr"
+  },
+  "integrator": {
+    "type": "Path Tracing",
+    "applySpectralRendering": false,
+    "spp": 1,
+    "maxBounce": 8,
+    "isAccumulate": true
+  }
+}

@@ -51,7 +51,11 @@ extern "C" __global__ void __miss__radiance()
     const float pSelected = 1.0f / float(optixLaunchParams.light.numLights);
     const float pdfLight = pdfEnvDir * pSelected;
 
-    const float weight = balanceHeuristicWeight(1, fmaxf(prd.pdf.bxdf, 1e-7f), 1, fmaxf(pdfLight, 1e-7f));
+    const float weight = 
+    (prd.lastHitMaterialType == MATERIAL_TYPE_GLASS) 
+    ? 1.0f 
+    : balanceHeuristicWeight(1, fmaxf(prd.pdf.bxdf, 1e-7f), 1, fmaxf(pdfLight, 1e-7f));
+    
     emission *= weight; 
     prd.contribution += emission * prd.albedo;
     prd.continueTrace = false;
