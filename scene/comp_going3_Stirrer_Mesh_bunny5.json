@@ -6,8 +6,8 @@
       "file": "background_paper.obj",
       "TRS": {
         "transform": [
-          -0,
-          -0.011,
+          -1.5,
+          -0.032,
           0.5
         ],
         "rotation": [
@@ -28,12 +28,12 @@
     {
       "name": "Wall",
       "type": "mesh",
-      "file": "wall_5.obj",
+      "file": "tank.obj",
       "TRS": {
         "transform": [
           0.5,
-          0.0,
-          0.5
+          -0.03,
+          0.7625
         ],
         "rotation": [
           0.0,
@@ -42,9 +42,9 @@
           1.0
         ],
         "scale": [
-          0.9,
-          1.0,
-          0.9
+          0.52,
+          0.5,
+          0.52
         ]
       },
       "placeCenterBBoxAtOrigin": false,
@@ -56,17 +56,17 @@
       "file": "square_light.obj",
       "TRS": {
         "transform": [
-          -0.8,
-          1.25,
-          5.0
+          -0.4,
+          0.625,
+          2.5
         ],
         "rotation": [
           0.353553, 0.353553, 0.146447, 0.853553
         ],
         "scale": [
-          0.25,
-          0.25,
-          0.25
+          0.125,
+          0.125,
+          0.125
         ]
       },
       "placeCenterBBoxAtOrigin": false,
@@ -75,11 +75,11 @@
     {
       "name": "Water",
       "type": "mesh",
-      "file": "comp_going1_propeller_mesh_N50\\render\\0_scene.obj",
+      "file": "comp_going3_Stirrer_Mesh_bunny5\\render\\0_scene.obj",
       "TRS": {
         "transform": [
           0.0,
-          -0.02,
+          -0.015,
           0.0
         ],
         "rotation": [
@@ -98,9 +98,9 @@
       "placeOnGround": false
     },
     {
-      "name": "Propeller",
+      "name": "Bunny",
       "type": "mesh",
-      "file": "comp_going1_propeller_mesh_N50\\render\\_objects\\0.obj",
+      "file": "comp_going3_Stirrer_Mesh_bunny5\\render\\_object\\0.obj",
       "TRS": {
         "transform": [
           0.0,
@@ -123,25 +123,25 @@
       "placeOnGround": false
     }
   ],
-  "camera": {
+ "camera": {
     "from": [
-      0.502,
-      0.09,
-      2.09
+      0.5,
+      0.524,
+      2.36
     ],
     "at": [
-      0.527,
-      0.4797,
-      -1.7933
+      0.5,
+      0.13,
+      0.11
     ],
     "up": [
       0.0,
       1.0,
       0.0
     ],
-    "focalLength": 50.0,
+    "focalLength": 20.0,
     "fValue": 2.799999952316284,
-    "fov": 50.0,
+    "fov": 20.0,
     "sensitivity": 1.0,
     "pintDist": 1.0
   },

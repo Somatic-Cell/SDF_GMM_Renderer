@@ -68,8 +68,8 @@ extern "C" __global__ void __raygen__renderFrame()
                 1e20f,  // tmax
                 0.0f,   // rayTime
                 OptixVisibilityMask( 255 ),
-                // OPTIX_RAY_FLAG_NONE,
-                OPTIX_RAY_FLAG_DISABLE_ANYHIT,
+                OPTIX_RAY_FLAG_NONE,
+                // OPTIX_RAY_FLAG_DISABLE_ANYHIT,
                 RADIANCE_RAY_TYPE,
                 RAY_TYPE_COUNT,
                 RADIANCE_RAY_TYPE,

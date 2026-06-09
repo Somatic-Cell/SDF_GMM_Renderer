@@ -37,4 +37,17 @@ extern "C" __global__ void __anyhit__radiance()
         optixIgnoreIntersection();
         return;
     }
+
+    // const int instID = optixGetInstanceId();
+    // // レイの進行方向を取得
+    // const float3 rayDirection = normalize(optixGetWorldRayDirection());
+    // // レイとプリミティブの交差点を取得
+    // const float rayLength = optixGetRayTmax();
+    // const float3 intersectedPoint = optixGetWorldRayOrigin() + rayLength * rayDirection;
+    // if(instID == 3){
+    //     if(fabsf(intersectedPoint.x - 0.5f) > 0.25f || fabsf(intersectedPoint.z - 0.5f) > 0.25f || intersectedPoint.y < 0.2f){
+    //         optixIgnoreIntersection();
+    //         return;
+    //     }
+    // }
 }

@@ -146,8 +146,9 @@ public:
 
         out12[0] =  R(0, 0) * s; out12[1] =  R(0, 2) * s; out12[2]  = -R(0, 1) * s; out12[3]  = inst.pos[0];
         // out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] - 0.0/100.0f;
-        // out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] -0.02f -0.01f;
-        out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] -0.02f;
+        out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] -0.015f;
+        // out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2] -0.04f -0.02f;
+        // out12[4] =  R(2, 0) * s; out12[5] =  R(2, 2) * s; out12[6]  = -R(2, 1) * s; out12[7]  = inst.pos[2];
         out12[8] = -R(1, 0) * s; out12[9] = -R(1, 2) * s; out12[10] =  R(1, 1) * s; out12[11] = 1.0f - inst.pos[1];
 
     }
@@ -164,6 +165,7 @@ public:
 
         base[0]  =  R(0,0)*s; base[1]  =  R(0,2)*s; base[2]  = -R(0,1)*s; base[3]  = inst.pos[0];
         // base[4]  =  R(2,0)*s; base[5]  =  R(2,2)*s; base[6]  = -R(2,1)*s; base[7]  = inst.pos[2]-0.02f -0.01f;
+        // base[4]  =  R(2,0)*s; base[5]  =  R(2,2)*s; base[6]  = -R(2,1)*s; base[7]  = inst.pos[2]-0.04f -0.02f;
         base[4]  =  R(2,0)*s; base[5]  =  R(2,2)*s; base[6]  = -R(2,1)*s; base[7]  = inst.pos[2];
         base[8]  = -R(1,0)*s; base[9]  = -R(1,2)*s; base[10] =  R(1,1)*s; base[11] = 1.0f - inst.pos[1];
 

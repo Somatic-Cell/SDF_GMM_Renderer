@@ -364,7 +364,7 @@ bool Renderer::buildAccel()
         std::cerr << "ERROR: readlink() failed" << std::endl;
     }
 #endif
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/comp_going1_bunny_mesh_N50/render/0_solid_particles.txt";
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/comp_grid_dam_GMM_bunny2_heart3_N100/render/0_solid_particles.txt";
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);
 
@@ -1042,7 +1042,7 @@ void Renderer::buildSBT()
                     //     rec.data.ior = 1.12f;
                     //     rec.data.materialType = MATERIAL_TYPE_GLASS;
                     // } 
-                    else if(modelIndex > 4 || modelIndex == 1){
+                    else if(modelIndex > 4){
                         rec.data.materialType = MATERIAL_TYPE_PRINCIPLED_BRDF;
                     }
 
@@ -1092,7 +1092,7 @@ void Renderer::render()
         m_launchParams.frame.accumID = 0;
     }
     m_launchParamsBuffer.upload(&m_launchParams, 1);
-    m_launchParams.frame.frameID += 1;
+    m_launchParams.frame.frameID += 2;
     
 
     OPTIX_CHECK(optixLaunch(
@@ -1746,7 +1746,7 @@ void Renderer::updateScene(Model* model){
     }
 #endif
     int nowIndex = m_launchParams.frame.frameID;
-    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/comp_going1_bunny_mesh_N50/render"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
+    std::filesystem::path partecleTxtDir = exePath.parent_path().parent_path().parent_path().parent_path() / "model/comp_grid_dam_GMM_bunny2_heart3_N100/render"/ (std::to_string(nowIndex) +  "_solid_particles.txt");
     std::cout << partecleTxtDir.string() << std::endl;
 
     m_particleReader.loadFromFile(partecleTxtDir.string(), m_particles);

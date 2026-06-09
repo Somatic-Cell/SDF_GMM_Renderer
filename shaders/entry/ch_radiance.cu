@@ -114,13 +114,15 @@ extern "C" __global__ void __closesthit__radiance()
         albedo = make_float3(1.0f);
     } 
     if(instID == 1){ // wall
-        albedo = make_float3(15.0f, 48.0f, 24.0f) / 255.f; // 緑
-        // albedo = make_float3(97.0f, 240.0f, 250.0f) / 255.f; // 水色 (dam などのシーン)
+        // albedo = make_float3(15.0f, 48.0f, 24.0f) / 255.f; // 緑
+        albedo = make_float3(97.0f, 240.0f, 250.0f) / 255.f; // 水色 (dam などのシーン)
+        // albedo = make_float3(1.0f); 
     }
     float density[6] = {0.99f, 1.00f, 1.05f, 1.15f, 1.25f, 1.5f};
     if(instID > 3){
-        // albedo = instanceIdToRGB(instID * 3); // 多数のパーティクルがあるシーンでランダムに色を割りふる
-        albedo = make_float3(0.4549019f, 0.20784f, 0.9490196f); // 紫
+        // albedo = make_float3(1.0f, 0.0f, 0.0f); // 多数のパーティクルがあるシーンでランダムに色を割りふる
+        albedo = instanceIdToRGB(instID * 3); // 多数のパーティクルがあるシーンでランダムに色を割りふる
+        // albedo = make_float3(0.4549019f, 0.20784f, 0.9490196f); // 紫
     }
     
     if(sbtData.diffuseTexture.hasTexture){

@@ -75,7 +75,7 @@
     {
       "name": "Water",
       "type": "mesh",
-      "file": "comp_going1_propeller_mesh_N50\\render\\0_scene.obj",
+      "file": "comp_going1_mesh_heart_N50\\render\\0_scene.obj",
       "TRS": {
         "transform": [
           0.0,
@@ -98,9 +98,9 @@
       "placeOnGround": false
     },
     {
-      "name": "Propeller",
+      "name": "bunny",
       "type": "mesh",
-      "file": "comp_going1_propeller_mesh_N50\\render\\_objects\\0.obj",
+      "file": "comp_going1_mesh_heart_N50\\render\\_objects\\0.obj",
       "TRS": {
         "transform": [
           0.0,

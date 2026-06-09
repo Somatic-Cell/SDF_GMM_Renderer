@@ -128,7 +128,7 @@ public:
 
         sceneIO::Object obj;
         LaunchParams lp = m_renderer.getLaunchParams();
-        obj.file = "comp_going1_bunny_mesh_n50\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
+        obj.file = "comp_grid_dam_GMM_bunny2_heart3_N100\\render\\" + std::to_string(lp.frame.frameID) + "_scene.obj";
         Model* model = loadModel(obj);
         float3 bboxMin = model->bounds.getMin();
         float3 bboxMax = model->bounds.getMax();
