@@ -1,1 +1,1 @@
-build\bin\Release\SDFGMMRT.exe "comp_grid_dam_GMM_bunny2_heart3_N100.json" 2>err.log
+build\bin\Release\SDFGMMRT.exe "comp_grid_dam_GMM_bunny2_heart3_N100.json" 1>out.lot 2>err.log

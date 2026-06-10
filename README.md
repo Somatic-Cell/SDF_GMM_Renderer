@@ -59,7 +59,7 @@ NVIDIA CUDA / OptiX を使用．
 コマンドプロンプトなどを開き，作業したいディレクトリ上で，本リポジトリをローカル環境にクローンする：
 
 ```
-$ git clone --recursive https://github.com/Somatic-Cell/PhotonicRT.git 
+$ git clone --recursive https://github.com/Somatic-Cell/SDF_GMM_Renderer.git 
 ```
 【注意】 サブモジュールを含めてクローンするために，```--recursive``` オプションを指定． \
 これを指定すれば，[使用する外部ライブラリ](#使用する外部ライブラリ) を個別にダウンロードする必要がない．

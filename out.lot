@@ -1,0 +1,215 @@
+[Scene] using: C:\Users\sy415\workspace\SDF_GMM_Renderer\scene\comp_grid_dam_GMM_bunny2_heart3_N100.json
+Model File Name:background_paper.obj
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\background_paper.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+72
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+-0.00831199, 3.99695, 0.00374508
+Model File Name:wall_3.obj
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\wall_3.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+12
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+0, 0.5, 0.00118101
+Model File Name:square_light.obj
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\square_light.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+4
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+0, 0, 0
+Model File Name:comp_grid_dam_GMM_bunny2_heart3_N100\render\0_scene.obj
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\comp_grid_dam_GMM_bunny2_heart3_N100\\render\\0_scene.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+229884
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+0.504618, 0.305639, 0.504619
+Model File Name:comp_grid_dam_GMM_bunny2_heart3_N100\render\_objects\0.obj
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\comp_grid_dam_GMM_bunny2_heart3_N100\\render\\_objects\\0.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+208992
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+0.0041015, 0.023127, -0.012401
+Model File Name:comp_grid_dam_GMM_bunny2_heart3_N100\render\_objects\1.obj
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\comp_grid_dam_GMM_bunny2_heart3_N100\\render\\_objects\\1.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+5940
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+-0.00718594, -5.06639e-07, -0.324812
+Initializing optix ...
+found1CUDA devices
+Successfully initialised OptiX!
+# GMM SDF RT: creating OptiX context...
+Running on device: NVIDIA GeForce RTX 5070 Ti
+# GMM SDF RT: setting up OptiX module...
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\raygen.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\ah_radiance.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\ah_shadow.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\ch_radiance.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\ch_shadow.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\miss_radiance.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\miss_shadow.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\diffuse_brdf.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\disney_principled_brdf.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\glass_bsdf.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\light_sample.optixir"
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\lens.optixir"
+# GMM SDF RT: creating raygen programs ...
+# GMM SDF RT: creating miss programs ...
+# GMM SDF RT: creating callable programs ...
+# GMM SDF RT: creating hitgroup programs ...
+C:\Users\sy415\workspace\SDF_GMM_Renderer\src\renderer.cpp::164: Renderer::buildAccel
+Building GAS...
+mdl->meshes.size()=1
+mdl->meshes.size()=1
+mdl->meshes.size()=1
+mdl->meshes.size()=1
+mdl->meshes.size()=1
+mdl->meshes.size()=1
+Building IAS...
+Background
+Wall
+Light
+Water
+5Particle(s)
+# GMM SDF RT: setting up OptiX pipeline ...
+log=Info: Pipeline statistics
+	module(s)                            :    12
+	entry function(s)                    :    17
+	trace call(s)                        :     2
+	continuation callable call(s)        :     0
+	direct callable call(s)              :     6
+	basic block(s) in entry functions    :   249
+	instruction(s) in entry functions    :  7521
+	non-entry function(s)                :     0
+	basic block(s) in non-entry functions:     0
+	instruction(s) in non-entry functions:     0
+	debug information                    :    no
+
+log=Info: Pipeline statistics
+	module(s)                            :    12
+	entry function(s)                    :    17
+	trace call(s)                        :     2
+	continuation callable call(s)        :     0
+	direct callable call(s)              :     6
+	basic block(s) in entry functions    :   249
+	instruction(s) in entry functions    :  7521
+	non-entry function(s)                :     0
+	basic block(s) in non-entry functions:     0
+	instruction(s) in non-entry functions:     0
+	debug information                    :    no
+
+# GMM SDF RT: building shader binding table...
+# GMM SDF RT: context, module, pipeline, etc, all set up ...
+# GMM SDF RT: Optix 8 fully set up...
+# GMM SDF RT: setting up CUDA module...
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\tonemap.ptx"
+Loading CUDA module...
+Loaded CUDA module.
+Fetching kernel function...
+Fetched kernel function.
+# GMM SDF RT: create light table...
+3 of lights and 2of emissive triangles.
+# GMM SDF RT: CUDA kernel fully set up...
+PTX Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\build\\bin\\ptxes\\copy_buffer_to_surface.ptx"
+Loading CUDA module...
+Loaded CUDA module.
+Fetching kernel function...
+Fetched kernel function.
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\comp_grid_dam_GMM_bunny2_heart3_N100\\render\\0_scene.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+229884
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+0.504618, 0.305639, 0.504619
+BBox min: x: 0.008425, y: 0.008426, z: 0.008428
+BBox max: x: 1.00081, y: 0.602852, z: 1.00081
+C:\Users\sy415\workspace\SDF_GMM_Renderer\model/comp_grid_dam_GMM_bunny2_heart3_N100/render\0_solid_particles.txt
+Building IAS...
+Model Path:"C:\\Users\\sy415\\workspace\\SDF_GMM_Renderer\\model\\comp_grid_dam_GMM_bunny2_heart3_N100\\render\\2_scene.obj"
+Detected 1meshes.
+Detected 1materials.
+Start to convert material data to use this renderer.
+Start to convert 0th material
+Start to convert mesh data to use this renderer.
+Start to convert 0th mesh
+237744
+created a total of 1meshes
+Root transform: 
+1, 0, 0
+0, 1, 0
+0, 0, 1
+Bounding box center:
+0.501579, 0.299134, 0.501589
+BBox min: x: -0.000339, y: -0.001262, z: -0.000342
+BBox max: x: 1.0035, y: 0.59953, z: 1.00352
+C:\Users\sy415\workspace\SDF_GMM_Renderer\model/comp_grid_dam_GMM_bunny2_heart3_N100/render\2_solid_particles.txt
+Building IAS...
